@@ -231,41 +231,48 @@ class Rulers extends dn.Process {
 	}
 
 	// TODO: might be wrong for vertical rulers
-	inline function getResizeGrid() {
+	inline function getResizeGridX() {
 		return curLayerInstance==null ? Editor.ME.project.defaultGridWidth : curLayerInstance.def.gridWid;
 	}
 
+	// TODO: might be wrong for vertical rulers
+	inline function getResizeGridY() {
+		return curLayerInstance==null ? Editor.ME.project.defaultGridHeight : curLayerInstance.def.gridHei;
+	}
+
 	function resizeBoundsValid(b) {
-		var min = getResizeGrid();
-		return b.newRight>=b.newLeft+min && b.newBottom>=b.newTop+min;
+		var minX = getResizeGridX();
+		var minY = getResizeGridY();
+		return b.newRight>=b.newLeft+minX && b.newBottom>=b.newTop+minY;
 	}
 
 	function getResizedBounds(m:Coords) {
 		if( draggedPos==null )
 			return null;
 
-		var grid = getResizeGrid();
+		var gridX = getResizeGridX();
+		var gridY = getResizeGridY();
 		var b = {
 			newLeft :
 				switch draggedPos {
-					case Left, TopLeft, BottomLeft : M.floor( ( m.levelX - dragOrigin.levelX ) / grid ) * grid;
+					case Left, TopLeft, BottomLeft : M.floor( ( m.levelX - dragOrigin.levelX ) / gridX ) * gridX;
 					case _: 0;
 				},
 
 			newTop :
 				switch draggedPos {
-					case Top, TopLeft, TopRight: M.floor( ( m.levelY - dragOrigin.levelY ) / grid ) * grid;
+					case Top, TopLeft, TopRight: M.floor( ( m.levelY - dragOrigin.levelY ) / gridY ) * gridY;
 					case _: 0;
 				},
 
 			newRight :
 				switch draggedPos {
-					case Right, TopRight, BottomRight: curLevel.pxWid + M.floor( ( m.levelX - dragOrigin.levelX ) / grid ) * grid;
+					case Right, TopRight, BottomRight: curLevel.pxWid + M.floor( ( m.levelX - dragOrigin.levelX ) / gridX ) * gridX;
 					case _: curLevel.pxWid;
 				},
 			newBottom :
 				switch draggedPos {
-					case Bottom, BottomLeft, BottomRight: curLevel.pxHei + M.floor( ( m.levelY - dragOrigin.levelY ) / grid ) * grid;
+					case Bottom, BottomLeft, BottomRight: curLevel.pxHei + M.floor( ( m.levelY - dragOrigin.levelY ) / gridY ) * gridY;
 					case _: curLevel.pxHei;
 				},
 
