@@ -398,9 +398,9 @@ class ProjectSaver extends dn.Process {
 
 
 			case ExportingTiled:
-				log('Unsupported Tiled export');
 				beginNextState();
 
+				// TODO: implement Tiled export with the rectangle tile support
 			// 	if( project.exportTiled ) {
 			// 		logState();
 			// 		ui.modal.Progress.single(
