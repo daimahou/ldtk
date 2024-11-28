@@ -138,22 +138,22 @@ class GenericLevelElementGroup {
 
 				for(e in elements) {
 					var x = switch e {
-						case GridCell(li, cx, cy): li.pxParallaxX + cx*li.def.scaledGridSize;
+						case GridCell(li, cx, cy): li.pxParallaxX + cx*li.def.scaledGridWid;
 						case Entity(li, ei): li.pxParallaxX + ei.x*li.def.getScale();
 						case PointField(li, ei, fi, arrayIdx):
 							var pt = fi.getPointGrid(arrayIdx);
 							if( pt!=null )
-								li.pxParallaxX + pt.cx*li.def.scaledGridSize;
+								li.pxParallaxX + pt.cx*li.def.scaledGridWid;
 							else
 								0;
 					}
 					var y = switch e {
-						case GridCell(li, cx, cy): li.pxParallaxY + cy*li.def.scaledGridSize;
+						case GridCell(li, cx, cy): li.pxParallaxY + cy*li.def.scaledGridHei;
 						case Entity(li, ei): li.pxParallaxY + ei.y*li.def.getScale();
 						case PointField(li, ei, fi, arrayIdx):
 							var pt = fi.getPointGrid(arrayIdx);
 							if( pt!=null )
-								li.pxParallaxY + pt.cy*li.def.scaledGridSize;
+								li.pxParallaxY + pt.cy*li.def.scaledGridHei;
 							else
 								0;
 					}
@@ -207,10 +207,10 @@ class GenericLevelElementGroup {
 					else
 						selectRender.beginFill(0x8ab7ff, alpha*0.6);
 					selectRender.drawRect(
-						li.pxParallaxX + cx*li.def.scaledGridSize,
-						li.pxParallaxY + cy*li.def.scaledGridSize,
-						li.def.scaledGridSize,
-						li.def.scaledGridSize
+						li.pxParallaxX + cx*li.def.scaledGridWid,
+						li.pxParallaxY + cy*li.def.scaledGridHei,
+						li.def.scaledGridWid,
+						li.def.scaledGridHei
 					);
 
 				case Entity(li, ei):
@@ -227,9 +227,9 @@ class GenericLevelElementGroup {
 					var pt = fi.getPointGrid(arrayIdx);
 					if( pt!=null )
 						selectRender.drawCircle(
-							li.pxParallaxX + (pt.cx+0.5)*li.def.scaledGridSize,
-							li.pxParallaxY + (pt.cy+0.5)*li.def.scaledGridSize,
-							li.def.scaledGridSize*0.4
+							li.pxParallaxX + (pt.cx+0.5)*li.def.scaledGridWid,
+							li.pxParallaxY + (pt.cy+0.5)*li.def.scaledGridHei,
+							li.def.scaledGridWid*0.4
 						);
 			}
 		}
@@ -249,10 +249,10 @@ class GenericLevelElementGroup {
 								ghost.lineStyle();
 								ghost.beginFill( li.getIntGridColorAt(cx,cy) );
 								ghost.drawRect(
-									li.pxParallaxX + cx*li.def.scaledGridSize - bounds.left,
-									li.pxParallaxY + cy*li.def.scaledGridSize - bounds.top,
-									li.def.scaledGridSize,
-									li.def.scaledGridSize
+									li.pxParallaxX + cx*li.def.scaledGridWid - bounds.left,
+									li.pxParallaxY + cy*li.def.scaledGridHei - bounds.top,
+									li.def.scaledGridWid,
+									li.def.scaledGridHei
 								);
 								ghost.endFill();
 
@@ -261,8 +261,8 @@ class GenericLevelElementGroup {
 								if( td!=null && td.isAtlasLoaded() )
 									for( t in li.getGridTileStack(cx,cy) ) {
 										var bmp = new h2d.Bitmap( td.getTileById(t.tileId), ghost );
-										bmp.x = li.pxParallaxX + ( cx + (M.hasBit(t.flips,0)?1:0) ) * li.def.scaledGridSize - bounds.left;
-										bmp.y = li.pxParallaxY + ( cy + (M.hasBit(t.flips,1)?1:0) ) * li.def.scaledGridSize - bounds.top;
+										bmp.x = li.pxParallaxX + ( cx + (M.hasBit(t.flips,0)?1:0) ) * li.def.scaledGridWid - bounds.left;
+										bmp.y = li.pxParallaxY + ( cy + (M.hasBit(t.flips,1)?1:0) ) * li.def.scaledGridHei - bounds.top;
 										bmp.scaleX = M.hasBit(t.flips, 0) ? -1 : 1;
 										bmp.scaleY = M.hasBit(t.flips, 1) ? -1 : 1;
 									}
@@ -281,14 +281,14 @@ class GenericLevelElementGroup {
 				case PointField(li, ei, fi, arrayIdx):
 					var pt = fi.getPointGrid(arrayIdx);
 					if( pt!=null ) {
-						var x = li.pxParallaxX + (pt.cx+0.5)*li.def.scaledGridSize - bounds.left;
-						var y = li.pxParallaxY + (pt.cy+0.5)*li.def.scaledGridSize - bounds.top;
+						var x = li.pxParallaxX + (pt.cx+0.5)*li.def.scaledGridWid - bounds.left;
+						var y = li.pxParallaxY + (pt.cy+0.5)*li.def.scaledGridHei - bounds.top;
 						ghost.lineStyle(1, ei.getSmartColor(false));
-						ghost.drawCircle(x, y, li.def.scaledGridSize*0.5);
+						ghost.drawCircle(x, y, li.def.scaledGridWid*0.5);
 
 						ghost.lineStyle();
 						ghost.beginFill(ei.getSmartColor(false) );
-						ghost.drawCircle(x, y, li.def.scaledGridSize*0.3);
+						ghost.drawCircle(x, y, li.def.scaledGridWid*0.3);
 						ghost.endFill();
 					}
 			}
@@ -305,13 +305,13 @@ class GenericLevelElementGroup {
 
 	function getDeltaX(origin:Coords, now:Coords) {
 		return snapToGrid()
-			? ( now.cx - origin.cx ) * getSmartSnapGrid()
+			? ( now.cx - origin.cx ) * getSmartSnapGridX()
 			: now.levelX - origin.levelX;
 	}
 
 	function getDeltaY(origin:Coords, now:Coords) {
 		return snapToGrid()
-			? ( now.cy - origin.cy ) * getSmartSnapGrid()
+			? ( now.cy - origin.cy ) * getSmartSnapGridY()
 			: now.levelY - origin.levelY;
 	}
 
@@ -322,26 +322,32 @@ class GenericLevelElementGroup {
 				case null:
 
 				case GridCell(li, _), Entity(li, _), PointField(li, _):
-					if( l==null || li.def.scaledGridSize>l.def.scaledGridSize )
+					if( l==null || li.def.scaledGridWid>l.def.scaledGridWid || li.def.scaledGridHei>l.def.scaledGridHei )
 						l = li;
 			}
 		return l;
 	}
 
-	inline function getSmartSnapGrid() {
+	inline function getSmartSnapGridX() {
 		var li = getSmartRelativeLayerInstance();
-		return li==null ? 1 : li.def.scaledGridSize;
+		return li==null ? 1 : li.def.scaledGridWid;
+	}
+
+	inline function getSmartSnapGridY() {
+		var li = getSmartRelativeLayerInstance();
+		return li==null ? 1 : li.def.scaledGridHei;
 	}
 
 	public function hasIncompatibleGridSizes() {
 		var li  = getSmartRelativeLayerInstance();
-		var grid = li==null ? 1 : li.def.gridSize;
+		var sizeX = li==null ? 1 : li.def.scaledGridWid;
+		var sizeY = li==null ? 1 : li.def.scaledGridHei;
 		for( ge in elements )
 			switch ge {
 			case null:
 			case GridCell(li, _), Entity(li, _), PointField(li, _):
-				if( li.def.gridSize<grid && grid % li.def.gridSize != 0 )
-					return true;
+				if( li.def.gridWid<sizeX && sizeX % li.def.gridWid != 0 ) return true;
+				if( li.def.gridHei<sizeY && sizeY % li.def.gridHei != 0 ) return true;
 			}
 
 		return false;
@@ -422,11 +428,12 @@ class GenericLevelElementGroup {
 		if( onlyMovingPoints || now.cx==origin.cx && now.cy==origin.cy )
 			arrow.visible = false;
 		else {
-			var grid = getSmartSnapGrid();
-			var fx = rel.pxParallaxX + (origin.cx+0.5) * grid;
-			var fy = rel.pxParallaxY + (origin.cy+0.5) * grid;
-			var tx = rel.pxParallaxX + (now.cx+0.5) * grid;
-			var ty = rel.pxParallaxY + (now.cy+0.5) * grid;
+			var gridX = getSmartSnapGridX();
+			var gridY = getSmartSnapGridY();
+			var fx = rel.pxParallaxX + (origin.cx+0.5) * gridX;
+			var fy = rel.pxParallaxY + (origin.cy+0.5) * gridY;
+			var tx = rel.pxParallaxX + (now.cx+0.5) * gridX;
+			var ty = rel.pxParallaxY + (now.cy+0.5) * gridY;
 
 			var a = Math.atan2(ty-fy, tx-fx);
 			var size = 6;
@@ -496,14 +503,14 @@ class GenericLevelElementGroup {
 							if( pt!=null )
 								if( isFieldValueSelected(fi,i) ) {
 									pointLinks.lineTo(
-										levelToGhostX( li.pxParallaxX+(pt.cx+0.5)*li.def.scaledGridSize ),
-										levelToGhostY( li.pxParallaxY+(pt.cy+0.5)*li.def.scaledGridSize )
+										levelToGhostX( li.pxParallaxX+(pt.cx+0.5)*li.def.scaledGridWid ),
+										levelToGhostY( li.pxParallaxY+(pt.cy+0.5)*li.def.scaledGridHei )
 									);
 								}
 								else
 									pointLinks.lineTo(
-										li.pxParallaxX+(pt.cx+0.5)*li.def.scaledGridSize,
-										li.pxParallaxY+(pt.cy+0.5)*li.def.scaledGridSize
+										li.pxParallaxX+(pt.cx+0.5)*li.def.scaledGridWid,
+										li.pxParallaxY+(pt.cy+0.5)*li.def.scaledGridHei
 									);
 						}
 					}
@@ -512,8 +519,8 @@ class GenericLevelElementGroup {
 					pointLinks.lineStyle(1,ei.getSmartColor(true));
 					var pt = fi.getPointGrid(arrayIdx);
 					if( pt!=null ) {
-						var x = levelToGhostX( li.pxParallaxX+(pt.cx+0.5)*li.def.scaledGridSize );
-						var y = levelToGhostY( li.pxParallaxY+(pt.cy+0.5)*li.def.scaledGridSize );
+						var x = levelToGhostX( li.pxParallaxX+(pt.cx+0.5)*li.def.scaledGridWid );
+						var y = levelToGhostY( li.pxParallaxY+(pt.cy+0.5)*li.def.scaledGridHei );
 
 						// Link to entity
 						if( fi.def.editorDisplayMode==PointStar || arrayIdx==0 ) {
@@ -535,13 +542,13 @@ class GenericLevelElementGroup {
 									pointLinks.moveTo(x,y);
 									if( isFieldValueSelected(fi,arrayIdx-1) )
 										pointLinks.lineTo(
-											levelToGhostX( li.pxParallaxX+(prev.cx+0.5)*li.def.scaledGridSize ),
-											levelToGhostY( li.pxParallaxX+(prev.cy+0.5)*li.def.scaledGridSize )
+											levelToGhostX( li.pxParallaxX+(prev.cx+0.5)*li.def.scaledGridWid ),
+											levelToGhostY( li.pxParallaxX+(prev.cy+0.5)*li.def.scaledGridHei )
 										);
 									else
 										pointLinks.lineTo(
-											li.pxParallaxX+(prev.cx+0.5)*li.def.scaledGridSize,
-											li.pxParallaxY+(prev.cy+0.5)*li.def.scaledGridSize
+											li.pxParallaxX+(prev.cx+0.5)*li.def.scaledGridWid,
+											li.pxParallaxY+(prev.cy+0.5)*li.def.scaledGridHei
 										);
 								}
 							}
@@ -553,13 +560,13 @@ class GenericLevelElementGroup {
 									pointLinks.moveTo(x,y);
 									if( isFieldValueSelected(fi,arrayIdx+1) )
 										pointLinks.lineTo(
-											levelToGhostX( li.pxParallaxX+(next.cx+0.5)*li.def.scaledGridSize ),
-											levelToGhostY( li.pxParallaxX+(next.cy+0.5)*li.def.scaledGridSize )
+											levelToGhostX( li.pxParallaxX+(next.cx+0.5)*li.def.scaledGridWid ),
+											levelToGhostY( li.pxParallaxX+(next.cy+0.5)*li.def.scaledGridHei )
 										);
 									else
 										pointLinks.lineTo(
-											li.pxParallaxX+(next.cx+0.5)*li.def.scaledGridSize,
-											li.pxParallaxY+(next.cy+0.5)*li.def.scaledGridSize
+											li.pxParallaxX+(next.cx+0.5)*li.def.scaledGridWid,
+											li.pxParallaxY+(next.cy+0.5)*li.def.scaledGridHei
 										);
 								}
 							}
@@ -650,7 +657,8 @@ class GenericLevelElementGroup {
 
 		// Prepare movement effects
 		var outOfBoundsRemovals : Array<String> = [];
-		var moveGrid = getSmartSnapGrid();
+		var moveGridX = getSmartSnapGridX();
+		var moveGridY = getSmartSnapGridY();
 		for( i in 0...elements.length ) {
 			var ge = elements[i];
 			switch ge {
@@ -732,8 +740,8 @@ class GenericLevelElementGroup {
 
 					// Remap points
 					if( isCopy ) {
-						var dcx = Std.int( getDeltaX(origin,to) / li.def.scaledGridSize );
-						var dcy = Std.int( getDeltaY(origin,to) / li.def.scaledGridSize );
+						var dcx = Std.int( getDeltaX(origin,to) / li.def.scaledGridWid );
+						var dcy = Std.int( getDeltaY(origin,to) / li.def.scaledGridHei );
 
 						for(fi in ei.getFieldInstancesOfType(F_Point))
 						for( i in 0...fi.getArrayLength() ) {
@@ -752,9 +760,10 @@ class GenericLevelElementGroup {
 						switch li.def.type {
 							case IntGrid:
 								var v = li.getIntGrid(cx,cy);
-								var gridRatio = Std.int( moveGrid / li.def.scaledGridSize );
-								var tcx = cx + (to.cx-origin.cx)*gridRatio;
-								var tcy = cy + (to.cy-origin.cy)*gridRatio;
+								var gridRatioX = Std.int( moveGridX / li.def.scaledGridWid );
+								var gridRatioY = Std.int( moveGridY / li.def.scaledGridHei );
+								var tcx = cx + (to.cx-origin.cx)*gridRatioX;
+								var tcy = cy + (to.cy-origin.cy)*gridRatioY;
 								if( !isCopy && li.hasIntGrid(cx,cy) )
 									postRemovals.push( ()-> li.removeIntGrid(cx,cy,false) );
 								postInserts.push( ()-> li.setIntGrid(tcx, tcy, v, false) );
@@ -764,9 +773,10 @@ class GenericLevelElementGroup {
 								editor.curLevelTimeline.markGridChange(li, tcx,tcy);
 
 							case Tiles:
-								var gridRatio = Std.int( moveGrid / li.def.scaledGridSize );
-								var tcx = cx + (to.cx-origin.cx)*gridRatio;
-								var tcy = cy + (to.cy-origin.cy)*gridRatio;
+								var gridRatioX = Std.int( moveGridX / li.def.scaledGridWid );
+								var gridRatioY = Std.int( moveGridY / li.def.scaledGridHei );
+								var tcx = cx + (to.cx-origin.cx)*gridRatioX;
+								var tcy = cy + (to.cy-origin.cy)*gridRatioY;
 
 								if( !isCopy && li.hasAnyGridTile(cx,cy) )
 									postRemovals.push( ()-> li.removeAllGridTiles(cx,cy,false) );
@@ -798,8 +808,8 @@ class GenericLevelElementGroup {
 						}
 
 						// Move point
-						pt.cx += Std.int( getDeltaX(origin, to) / li.def.scaledGridSize );
-						pt.cy += Std.int( getDeltaY(origin, to) / li.def.scaledGridSize );
+						pt.cx += Std.int( getDeltaX(origin, to) / li.def.scaledGridWid );
+						pt.cy += Std.int( getDeltaY(origin, to) / li.def.scaledGridHei );
 
 						if( li.isValid(pt.cx,pt.cy) )
 							fi.parseValue(arrayIdx, pt.cx+Const.POINT_SEPARATOR+pt.cy);

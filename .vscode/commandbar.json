@@ -33,7 +33,7 @@
 		{
 			"text": "🖥️ Term",
 			"color": "white",
-			"command": "start /d app cmd",
+			"command": "wt -w _quake -d c:\\Users\\gerar\\workspace\\ldtk\\app",
 			"alignment": "right",
 			"skipTerminateQuickPick": false,
 			"priority": -30

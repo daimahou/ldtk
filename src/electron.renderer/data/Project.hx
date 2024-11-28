@@ -23,13 +23,15 @@ class Project {
 	public var appBuildId : Float;
 	public var defaultPivotX : Float;
 	public var defaultPivotY : Float;
-	public var defaultGridSize : Int;
+	public var defaultGridWidth : Int;
+	public var defaultGridHeight : Int;
 	public var defaultEntityWidth : Int;
 	public var defaultEntityHeight : Int;
 	public var bgColor : UInt;
 	public var defaultLevelBgColor : UInt;
 
 	public var minifyJson = false;
+	public var jsonStyle : ldtk.Json.JsonStyle = ldtk.Json.JsonStyle.Full;
 	public var externalLevels = false;
 	public var exportTiled = false;
 	public var simplifiedExport = false;
@@ -62,7 +64,7 @@ class Project {
 	private function new() {
 		jsonVersion = Const.getJsonVersion();
 		bgColor = DEFAULT_WORKSPACE_BG;
-		defaultGridSize = Project.DEFAULT_GRID_SIZE;
+		defaultGridWidth = defaultGridHeight = Project.DEFAULT_GRID_SIZE;
 		defaultLevelBgColor = DEFAULT_LEVEL_BG;
 		defaultPivotX = defaultPivotY = 0;
 		defaultEntityWidth = defaultEntityHeight = Project.DEFAULT_GRID_SIZE;
@@ -292,7 +294,8 @@ class Project {
 
 		p.defaultPivotX = JsonTools.readFloat( json.defaultPivotX, 0 );
 		p.defaultPivotY = JsonTools.readFloat( json.defaultPivotY, 0 );
-		p.defaultGridSize = JsonTools.readInt( json.defaultGridSize, Project.DEFAULT_GRID_SIZE );
+		p.defaultGridWidth = JsonTools.readInt( json.defaultGridWidth, Project.DEFAULT_GRID_SIZE );
+		p.defaultGridHeight = JsonTools.readInt( json.defaultGridHeight, Project.DEFAULT_GRID_SIZE );
 		p.defaultEntityWidth = JsonTools.readInt( json.defaultEntityWidth, Project.DEFAULT_GRID_SIZE );
 		p.defaultEntityHeight = JsonTools.readInt( json.defaultEntityHeight, Project.DEFAULT_GRID_SIZE );
 		p.bgColor = JsonTools.readColor( json.bgColor, DEFAULT_WORKSPACE_BG );
@@ -300,6 +303,7 @@ class Project {
 		p.externalLevels = JsonTools.readBool(json.externalLevels, false);
 
 		p.minifyJson = JsonTools.readBool( json.minifyJson, false );
+		p.jsonStyle = JsonTools.readEnum( ldtk.Json.JsonStyle, json.jsonStyle, false, Compact ); // uses Compact for pre-1.5.4 versions
 		p.exportTiled = JsonTools.readBool( json.exportTiled, false );
 		p.simplifiedExport = JsonTools.readBool( json.simplifiedExport, false );
 		p.backupOnSave = JsonTools.readBool( json.backupOnSave, false );
@@ -645,13 +649,15 @@ class Project {
 
 			defaultPivotX: JsonTools.writeFloat( defaultPivotX ),
 			defaultPivotY: JsonTools.writeFloat( defaultPivotY ),
-			defaultGridSize: defaultGridSize,
+			defaultGridWidth: defaultGridWidth,
+			defaultGridHeight: defaultGridHeight,
 			defaultEntityWidth: defaultEntityWidth,
 			defaultEntityHeight: defaultEntityHeight,
 			bgColor: JsonTools.writeColor(bgColor),
 			defaultLevelBgColor: JsonTools.writeColor(defaultLevelBgColor),
 
 			minifyJson: minifyJson,
+			jsonStyle: JsonTools.writeEnum(jsonStyle, false),
 			externalLevels: externalLevels,
 			exportTiled: exportTiled,
 			simplifiedExport: simplifiedExport,
@@ -1147,17 +1153,32 @@ class Project {
 	}
 
 
-	public inline function getSmartLevelGridSize() {
+	public inline function getSmartLevelGridWidth() {
 		if( defs.layers.length==0 )
-			return defaultGridSize;
+			return defaultGridWidth;
 		else {
 			var g = Const.INFINITE;
 
 			for(ld in defs.layers)
 				if( ld.type!=Entities )
-					g = dn.M.imin(g, ld.gridSize);
+					g = dn.M.imin(g, ld.gridWid);
 
-			return g==Const.INFINITE ? defaultGridSize : g;
+			return g==Const.INFINITE ? defaultGridWidth : g;
+		}
+	}
+
+
+	public inline function getSmartLevelGridHeight() {
+		if( defs.layers.length==0 )
+			return defaultGridHeight;
+		else {
+			var g = Const.INFINITE;
+
+			for(ld in defs.layers)
+				if( ld.type!=Entities )
+					g = dn.M.imin(g, ld.gridHei);
+
+			return g==Const.INFINITE ? defaultGridHeight : g;
 		}
 	}
 

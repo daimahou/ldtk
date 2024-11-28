@@ -84,12 +84,12 @@ class Coords {
 	// Level cell
 	public var cx(get,never) : Int;
 		inline function get_cx() {
-			return M.floor( layerX / ( getRelativeLayerInst()!=null ? getRelativeLayerInst().def.gridSize : 16 ) );
+			return M.floor( layerX / ( getRelativeLayerInst()!=null ? getRelativeLayerInst().def.gridWid : 16 ) );
 		}
 
 	public var cy(get,never) : Int;
 		inline function get_cy() {
-			return M.floor( layerY / ( getRelativeLayerInst()!=null ? getRelativeLayerInst().def.gridSize : 16 ) );
+			return M.floor( layerY / ( getRelativeLayerInst()!=null ? getRelativeLayerInst().def.gridHei : 16 ) );
 		}
 
 	var _relativeLayerInst : Null<data.inst.LayerInstance>;
@@ -164,11 +164,11 @@ class Coords {
 	}
 
 	public function getLayerCx(li:data.inst.LayerInstance) {
-		return Std.int( ( layerX + getRelativeLayerInst().pxParallaxX - li.pxParallaxX ) / li.def.scaledGridSize );
+		return Std.int( ( layerX + getRelativeLayerInst().pxParallaxX - li.pxParallaxX ) / li.def.scaledGridWid );
 	}
 
 	public function getLayerCy(li:data.inst.LayerInstance) {
-		return Std.int( ( layerY + getRelativeLayerInst().pxParallaxY - li.pxParallaxY ) / li.def.scaledGridSize );
+		return Std.int( ( layerY + getRelativeLayerInst().pxParallaxY - li.pxParallaxY ) / li.def.scaledGridHei );
 	}
 
 	public inline function getPageDist(with:Coords) {

@@ -164,7 +164,7 @@ class RuleGroupRemap extends ui.modal.Dialog {
 		// Render arrow
 		if( tileOffsetX!=0 || tileOffsetY!=0 ) {
 			var idx = 0;
-			var offX = Std.int(td.tileGridSize*0.5);
+			var offX = Std.int(td.tileGridWid*0.5);
 			var offY = offX;
 			for(idx in 0...allTileIds.length) {
 				if( idx>=offsetedIds.length )

@@ -569,13 +569,14 @@ class WorldRender extends dn.Process {
 			smallGrid.clear();
 			smallGrid.visible = true;
 			smallGrid.lineStyle(camera.pixelRatio, worldLineColor, 0.5 * M.fmin( (camera.adjustedZoom-minZoom)/0.5, 1 ) );
-			var g = project.getSmartLevelGridSize() * camera.adjustedZoom;
+			var g = project.getSmartLevelGridWidth() * camera.adjustedZoom;
 			// Verticals
 			var off = root.x % g;
 			for(i in 0...M.ceil(camera.width/g)) {
 				smallGrid.moveTo(i*g+off, 0);
 				smallGrid.lineTo(i*g+off, camera.height);
 			}
+			var g = project.getSmartLevelGridHeight() * camera.adjustedZoom;
 			// Horizontals
 			var off = root.y % g;
 			for(i in 0...M.ceil(camera.height/g)) {
@@ -639,16 +640,17 @@ class WorldRender extends dn.Process {
 
 	function renderWorldBounds() {
 		App.LOG.render("Rendering world bounds...");
-		var pad = project.defaultGridSize*3;
+		var padX = project.defaultGridWidth*3;
+		var padY = project.defaultGridHeight*3;
 		var b = curWorld.getWorldBounds();
 		worldBounds.clear();
 		worldBounds.beginFill(project.bgColor, 0.8);
 		worldBounds.drawRoundedRect(
-			b.left-pad,
-			b.top-pad,
-			b.right-b.left+1+pad*2,
-			b.bottom-b.top+1+pad*2,
-			pad*0.5
+			b.left-padX,
+			b.top-padY,
+			b.right-b.left+1+padX*2,
+			b.bottom-b.top+1+padY*2,
+			padX*0.5
 		);
 	}
 
@@ -692,7 +694,7 @@ class WorldRender extends dn.Process {
 		}
 		else {
 			// Fade other levels in editor mode
-			var dist = editor.curLevel.getBoundsDist(l);
+			var dist = dn.M.imax(editor.curLevel.getBoundsDistX(l), editor.curLevel.getBoundsDistY(l));
 			wl.outline.alpha = 0.3;
 			wl.outline.visible = camera.isOnScreenLevel(l);
 			wl.fadeMask.visible = true;
@@ -825,12 +827,18 @@ class WorldRender extends dn.Process {
 		// Per-coord limit
 		var doneCoords = new Map();
 		inline function markCoordAsDone(li:data.inst.LayerInstance, cx:Int, cy:Int) {
-			if( !doneCoords.exists(li.def.gridSize) )
-				doneCoords.set(li.def.gridSize, new Map());
-			doneCoords.get(li.def.gridSize).set( li.coordId(cx,cy), true);
+			// TODO: double check
+			// var defSize = li.def.gridSize;
+			var defSize = li.def.gridWid;
+			if( !doneCoords.exists(defSize) )
+				doneCoords.set(defSize, new Map());
+			doneCoords.get(defSize).set( li.coordId(cx,cy), true);
 		}
 		inline function isCoordDone(li:data.inst.LayerInstance, cx:Int, cy:Int) {
-			return doneCoords.exists(li.def.gridSize) && doneCoords.get(li.def.gridSize).exists( li.coordId(cx,cy) );
+			// TODO: double check
+			// var defSize = li.def.gridSize;
+			var defSize = li.def.gridWid;
+			return doneCoords.exists(defSize) && doneCoords.get(defSize).exists( li.coordId(cx,cy) );
 		}
 
 		// Edge tiles render
@@ -866,7 +874,7 @@ class WorldRender extends dn.Process {
 							for( allTiles in li.autoTilesCache.get( r.uid ) )
 							for( tileInfos in allTiles ) {
 								if( editor.curLevel.otherLevelCoordInBounds(l, tileInfos.x, tileInfos.y, edgeDistPx) ) {
-									markCoordAsDone(li, Std.int(tileInfos.x/li.def.gridSize), Std.int(tileInfos.y/li.def.gridSize));
+									markCoordAsDone(li, Std.int(tileInfos.x/li.def.gridWid), Std.int(tileInfos.y/li.def.gridHei));
 									LayerRender.renderAutoTileInfos(li, td, tileInfos, edgeTg);
 								}
 							}
@@ -877,7 +885,7 @@ class WorldRender extends dn.Process {
 					// Classic tiles
 					for(cy in 0...li.cHei)
 					for(cx in 0...li.cWid) {
-						if( editor.curLevel.otherLevelCoordInBounds(l, cx*li.def.gridSize, cy*li.def.gridSize, edgeDistPx) ) {
+						if( editor.curLevel.otherLevelCoordInBounds(l, cx*li.def.gridWid, cy*li.def.gridHei, edgeDistPx) ) {
 							markCoordAsDone(li,cx,cy);
 							for( tileInf in li.getGridTileStack(cx,cy) )
 								LayerRender.renderGridTile(li, td, tileInf, cx,cy, edgeTg);
@@ -900,7 +908,7 @@ class WorldRender extends dn.Process {
 				return;
 			}
 
-			var pixelGrid = new dn.heaps.PixelGrid(li.def.gridSize, li.cWid, li.cHei);
+			var pixelGrid = new dn.heaps.PixelGrid(li.def.gridWid, li.def.gridHei, li.cWid, li.cHei);
 			wl.render.addChildAt(pixelGrid,0);
 			pixelGrid.x = li.pxTotalOffsetX;
 			pixelGrid.y = li.pxTotalOffsetY;
@@ -931,8 +939,8 @@ class WorldRender extends dn.Process {
 						if( li.autoTilesCache.exists( r.uid ) ) {
 							for( allTiles in li.autoTilesCache.get( r.uid ).keyValueIterator() )
 							for( tileInfos in allTiles.value ) {
-								cx = Std.int( tileInfos.x / li.def.gridSize );
-								cy = Std.int( tileInfos.y / li.def.gridSize );
+								cx = Std.int( tileInfos.x / li.def.gridWid );
+								cy = Std.int( tileInfos.y / li.def.gridHei );
 								if( !isCoordDone(li,cx,cy) ) {
 									c = td.getAverageTileColor(tileInfos.tid);
 									if( c.af>=alphaThreshold ) {

@@ -69,14 +69,14 @@ class ResizeTool extends Tool<Int> {
 		if( _rect==null )
 			_rect = switch ge {
 				case GridCell(li, cx, cy):
-					{ x:cx*li.def.gridSize, y:cy*li.def.gridSize, w:li.def.gridSize, h:li.def.gridSize }
+					{ x:cx*li.def.gridWid, y:cy*li.def.gridHei, w:li.def.gridWid, h:li.def.gridHei }
 
 				case Entity(li, ei):
 					{ x:ei.left, y:ei.top, w:ei.width, h:ei.height }
 
 				case PointField(li, ei, fi, arrayIdx):
 					var pt = fi.getPointGrid(arrayIdx);
-					{ x:pt.cx*li.def.gridSize, y:pt.cy*li.def.gridSize, w:li.def.gridSize, h:li.def.gridSize }
+					{ x:pt.cx*li.def.gridWid, y:pt.cy*li.def.gridHei, w:li.def.gridWid, h:li.def.gridHei }
 			}
 		return _rect;
 	}
@@ -208,7 +208,8 @@ class ResizeTool extends Tool<Int> {
 		else {
 			// Actual resizing
 			ev.cancel = true;
-			var snapSize = settings.v.grid ? editor.curLayerDef.gridSize : 1;
+			var snapSizeX = settings.v.grid ? editor.curLayerDef.gridWid : 1;
+			var snapSizeY = settings.v.grid ? editor.curLayerDef.gridHei : 1;
 
 			// Width
 			var newWid = switch draggedHandle {
@@ -221,7 +222,7 @@ class ResizeTool extends Tool<Int> {
 					m.levelX - rect.x - HANDLE_RADIUS;
 				}
 			if( newWid!=rect.w )
-				newWid = M.round(newWid/snapSize) * snapSize;
+				newWid = M.round(newWid/snapSizeX) * snapSizeX;
 
 			// Height
 			var newHei = switch draggedHandle {
@@ -234,7 +235,7 @@ class ResizeTool extends Tool<Int> {
 					m.levelY - rect.y - HANDLE_RADIUS;
 			}
 			if( newHei!=rect.h )
-				newHei = M.round(newHei/snapSize) * snapSize;
+				newHei = M.round(newHei/snapSizeY) * snapSizeY;
 
 			// Apply new bounds
 			switch ge {

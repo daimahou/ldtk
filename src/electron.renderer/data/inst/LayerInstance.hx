@@ -61,8 +61,8 @@ class LayerInstance {
 
 	public var pxWid(get,never) : Int; inline function get_pxWid() return level.pxWid - pxOffsetX;
 	public var pxHei(get,never) : Int; inline function get_pxHei() return level.pxHei - pxOffsetY;
-	public var cWid(get,never) : Int; inline function get_cWid() return dn.M.ceil( pxWid / def.gridSize );
-	public var cHei(get,never) : Int; inline function get_cHei() return dn.M.ceil( pxHei / def.gridSize );
+	public var cWid(get,never) : Int; inline function get_cWid() return dn.M.ceil( pxWid / def.gridWid );
+	public var cHei(get,never) : Int; inline function get_cHei() return dn.M.ceil( pxHei / def.gridHei );
 
 
 	@:allow(data.Level)
@@ -210,7 +210,8 @@ class LayerInstance {
 			__type: Std.string(def.type),
 			__cWid: cWid,
 			__cHei: cHei,
-			__gridSize: def.gridSize,
+			__gridWid: def.gridWid,
+			__gridHei: def.gridHei,
 			__opacity: def.displayOpacity,
 			__pxTotalOffsetX: pxOffsetX + def.pxOffsetX,
 			__pxTotalOffsetY: pxOffsetY + def.pxOffsetY,
@@ -271,8 +272,8 @@ class LayerInstance {
 					for( tileInf in e.value ) {
 						arr.push({
 							px: [
-								getCx(e.key) * def.gridSize,
-								getCy(e.key) * def.gridSize,
+								getCx(e.key) * def.gridWid,
+								getCy(e.key) * def.gridHei,
 							],
 							src: [
 								td==null ? -1 : td.getTileSourceX(tileInf.tileId),
@@ -324,8 +325,8 @@ class LayerInstance {
 		var out = new Map();
 		for( tid in tileIds )
 			out.set( tid, {
-				xOff: Std.int( ( td.getTileCx(tid)-left - rule.pivotX*(right-left) + def.tilePivotX ) * def.gridSize ) * (dn.M.hasBit(flipBits,0)?-1:1),
-				yOff: Std.int( ( td.getTileCy(tid)-top - rule.pivotY*(bottom-top) + def.tilePivotY ) * def.gridSize ) * (dn.M.hasBit(flipBits,1)?-1:1)
+				xOff: Std.int( ( td.getTileCx(tid)-left - rule.pivotX*(right-left) + def.tilePivotX ) * def.gridWid ) * (dn.M.hasBit(flipBits,0)?-1:1),
+				yOff: Std.int( ( td.getTileCy(tid)-top - rule.pivotY*(bottom-top) + def.tilePivotY ) * def.gridHei ) * (dn.M.hasBit(flipBits,1)?-1:1)
 			});
 		return out;
 	}
@@ -472,11 +473,11 @@ class LayerInstance {
 	}
 
 	public inline function levelToLayerCx(levelX:Float) {
-		return Std.int( ( levelX - pxTotalOffsetX ) / def.gridSize ); // TODO not tested: check if this works with the new layerDef offsets
+		return Std.int( ( levelX - pxTotalOffsetX ) / def.gridWid ); // TODO not tested: check if this works with the new layerDef offsets
 	}
 
 	public inline function levelToLayerCy(levelY:Float) {
-		return Std.int( ( levelY - pxTotalOffsetY ) / def.gridSize );
+		return Std.int( ( levelY - pxTotalOffsetY ) / def.gridHei );
 	}
 
 	public function tidy(p:Project) : Bool {
@@ -559,14 +560,14 @@ class LayerInstance {
 	private function applyNewBounds(newPxLeft:Int, newPxTop:Int, newPxWid:Int, newPxHei:Int) {
 		var totalOffsetX = pxOffsetX - newPxLeft;
 		var totalOffsetY = pxOffsetY - newPxTop;
-		var newPxOffsetX = totalOffsetX % def.gridSize;
-		var newPxOffsetY = totalOffsetY % def.gridSize;
-		var newCWid = dn.M.ceil( (newPxWid-newPxOffsetX) / def.gridSize );
-		var newCHei = dn.M.ceil( (newPxHei-newPxOffsetY) / def.gridSize );
+		var newPxOffsetX = totalOffsetX % def.gridWid;
+		var newPxOffsetY = totalOffsetY % def.gridHei;
+		var newCWid = dn.M.ceil( (newPxWid-newPxOffsetX) / def.gridWid );
+		var newCHei = dn.M.ceil( (newPxHei-newPxOffsetY) / def.gridHei );
 
 		// Move data
-		var cDeltaX = Std.int( totalOffsetX / def.gridSize);
-		var cDeltaY = Std.int( totalOffsetY / def.gridSize);
+		var cDeltaX = Std.int( totalOffsetX / def.gridWid);
+		var cDeltaY = Std.int( totalOffsetY / def.gridHei);
 		switch def.type {
 			case IntGrid:
 				// Remap coords
@@ -587,8 +588,8 @@ class LayerInstance {
 				var i = 0;
 				while( i<entityInstances.length ) {
 					var ei = entityInstances[i];
-					ei.x += cDeltaX*def.gridSize;
-					ei.y += cDeltaY*def.gridSize;
+					ei.x += cDeltaX*def.gridWid;
+					ei.y += cDeltaY*def.gridHei;
 
 					// Move points
 					for(fi in ei.fieldInstances)
@@ -826,9 +827,9 @@ class LayerInstance {
 	}
 
 
-	public function remapToGridSize(oldGrid:Int, newGrid:Int) {
-		var newCWid = M.ceil( pxWid/newGrid );
-		var newCHei = M.ceil( pxHei/newGrid );
+	public function remapToGridSize(oldGridX:Int, oldGridY:Int, newGridX:Int, newGridY:Int) {
+		var newCWid = M.ceil( pxWid/newGridX );
+		var newCHei = M.ceil( pxHei/newGridY );
 		inline function _newCoordId(cx,cy) {
 			return cx+cy*newCWid;
 		}
@@ -845,14 +846,15 @@ class LayerInstance {
 					autoTilesCache = null;
 
 			case Entities:
-				var ratio = newGrid/oldGrid;
+				var ratioX = newGridX/oldGridX;
+				var ratioY = newGridY/oldGridY;
 				for(ei in entityInstances) {
-					ei.x = M.floor( ratio * ei.x );
-					ei.y = M.floor( ratio * ei.y );
+					ei.x = M.floor( ratioX * ei.x );
+					ei.y = M.floor( ratioY * ei.y );
 					if( ei.customWidth!=null )
-						ei.customWidth = M.floor( ratio * ei.customWidth );
+						ei.customWidth = M.floor( ratioX * ei.customWidth );
 					if( ei.customHeight!=null )
-						ei.customHeight = M.floor( ratio * ei.customHeight );
+						ei.customHeight = M.floor( ratioY * ei.customHeight );
 				}
 
 			case Tiles:
@@ -905,8 +907,8 @@ class LayerInstance {
 			autoTilesCache.get(r.uid).set( coordId(cx,cy), autoTilesCache.get(r.uid).get( coordId(cx,cy) ).concat(
 				tileRectIds.map( (tid)->{
 					return {
-						x: cx*def.gridSize + (stampInfos==null ? 0 : stampInfos.get(tid).xOff ) + r.getXOffsetForCoord(seed,cx,cy, flips),
-						y: cy*def.gridSize + (stampInfos==null ? 0 : stampInfos.get(tid).yOff ) + r.getYOffsetForCoord(seed,cx,cy, flips),
+						x: cx*def.gridWid + (stampInfos==null ? 0 : stampInfos.get(tid).xOff ) + r.getXOffsetForCoord(seed,cx,cy, flips),
+						y: cy*def.gridHei + (stampInfos==null ? 0 : stampInfos.get(tid).yOff ) + r.getYOffsetForCoord(seed,cx,cy, flips),
 						srcX: td.getTileSourceX(tid),
 						srcY: td.getTileSourceY(tid),
 						tid: tid,

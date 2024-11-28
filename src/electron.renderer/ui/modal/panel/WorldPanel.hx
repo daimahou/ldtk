@@ -87,8 +87,8 @@ class WorldPanel extends ui.modal.Panel {
 					editor.camera.fit();
 					switch curWorld.worldLayout {
 						case Free, GridVania:
-							copy.worldX += project.defaultGridSize*4;
-							copy.worldY += project.defaultGridSize*4;
+							copy.worldX += project.defaultGridWidth*4;
+							copy.worldY += project.defaultGridHeight*4;
 
 						case LinearHorizontal:
 						case LinearVertical:
@@ -209,11 +209,11 @@ class WorldPanel extends ui.modal.Panel {
 		// Default new level size
 		var i = Input.linkToHtmlInput( curWorld.defaultLevelWidth, jForm.find("#defaultLevelWidth"));
 		i.linkEvent(WorldSettingsChanged);
-		i.setBounds(project.defaultGridSize, 9999);
+		i.setBounds(project.defaultGridWidth, 9999);
 		i.fixValue = v->curWorld.snapWorldGridX(v,true);
 		var i = Input.linkToHtmlInput( curWorld.defaultLevelHeight, jForm.find("#defaultLevelHeight"));
 		i.linkEvent(WorldSettingsChanged);
-		i.setBounds(project.defaultGridSize, 9999);
+		i.setBounds(project.defaultGridHeight, 9999);
 		i.fixValue = v->curWorld.snapWorldGridY(v,true);
 
 		// World grid

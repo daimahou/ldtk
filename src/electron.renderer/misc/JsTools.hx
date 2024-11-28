@@ -1131,8 +1131,8 @@ class JsTools {
 			else if( !isRectMode ) {
 				// Single/random tiles
 				jTileCanvas.removeClass("empty");
-				jTileCanvas.attr("width", td.tileGridSize);
-				jTileCanvas.attr("height", td.tileGridSize);
+				jTileCanvas.attr("width", td.tileGridWid);
+				jTileCanvas.attr("height", td.tileGridHei);
 				td.drawTileToCanvas(jTileCanvas, tileIds[0]);
 				if( tileIds.length>1 && !isRectMode ) {
 					// Cycling animation among multiple tiles
@@ -1161,16 +1161,17 @@ class JsTools {
 				var bounds = td.getTileGroupBounds(tileIds);
 				var wid = M.imax(bounds.wid, 1);
 				var hei = M.imax(bounds.hei, 1);
-				jTileCanvas.attr("width", td.tileGridSize * wid );
-				jTileCanvas.attr("height", td.tileGridSize * hei );
-				var scale = M.fmin(1, 48 / ( M.fmax(wid, hei)*td.tileGridSize ) );
-				jTileCanvas.css("width", td.tileGridSize * wid * scale );
-				jTileCanvas.css("height", td.tileGridSize * hei * scale );
+				jTileCanvas.attr("width", td.tileGridWid * wid );
+				jTileCanvas.attr("height", td.tileGridHei * hei );
+				var scaleX = M.fmin(1, 48 / ( wid*td.tileGridWid ) );
+				var scaleY = M.fmin(1, 48 / ( hei*td.tileGridHei ) );
+				jTileCanvas.css("width", td.tileGridWid * wid * scaleX );
+				jTileCanvas.css("height", td.tileGridHei * hei * scaleY );
 
 				for(tid in tileIds) {
 					var tcx = td.getTileCx(tid);
 					var tcy = td.getTileCy(tid);
-					td.drawTileToCanvas(jTileCanvas, tid, (tcx-bounds.left)*td.tileGridSize, (tcy-bounds.top)*td.tileGridSize);
+					td.drawTileToCanvas(jTileCanvas, tid, (tcx-bounds.left)*td.tileGridWid, (tcy-bounds.top)*td.tileGridHei);
 				}
 			}
 

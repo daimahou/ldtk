@@ -427,10 +427,10 @@ class LevelTimeline {
 	public inline function markGridChange(li:data.inst.LayerInstance, cx:Int, cy:Int) {
 		markRectChange(
 			li,
-			cx*li.def.gridSize,
-			cy*li.def.gridSize,
-			li.def.gridSize,
-			li.def.gridSize
+			cx*li.def.gridWid,
+			cy*li.def.gridHei,
+			li.def.gridWid,
+			li.def.gridHei
 		);
 	}
 

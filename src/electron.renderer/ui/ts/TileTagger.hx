@@ -103,10 +103,11 @@ class TileTagger extends ui.Tileset {
 			return;
 		}
 
-		var isSmallGrid = tilesetDef.tileGridSize<16;
-		var thickness = M.imax(1, Std.int( tilesetDef.tileGridSize / 16 ) );
-		var offX = isSmallGrid ? -1 : -thickness*2;
-		var offY = isSmallGrid ? -1 : -thickness*2;
+		var isSmallGrid = tilesetDef.tileGridWid<16 && tilesetDef.tileGridHei<16;
+		var thicknessX = M.imax(1, Std.int( tilesetDef.tileGridWid / 16 ) );
+		var thicknessY = M.imax(1, Std.int( tilesetDef.tileGridHei / 16 ) );
+		var offX = isSmallGrid ? -1 : -thicknessX*2;
+		var offY = isSmallGrid ? -1 : -thicknessY*2;
 		var iconTd = tilesetDef.tagsSourceEnumUid==null || ed.iconTilesetUid==null ? null : Editor.ME.project.defs.getTilesetDef(ed.iconTilesetUid);
 
 		for(tileId in 0...tilesetDef.cWid*tilesetDef.cHei) {
@@ -120,34 +121,35 @@ class TileTagger extends ui.Tileset {
 					if( tilesetDef.hasTag(ev.id, tileId) && ( curEnumValue==null || curEnumValue==ev.id ) ) {
 						if( ev.tileRect!=null && iconTd!=null ) {
 							// Render icon tile
-							var s = tilesetDef.tileGridSize / iconTd.tileGridSize;
-							iconTd.drawTileRectTo2dContext(ctx, ev.tileRect, x-n*offX, y-n*offY, s,s);
+							var scaleX = tilesetDef.tileGridWid / iconTd.tileGridWid;
+							var scaleY = tilesetDef.tileGridHei / iconTd.tileGridHei;
+							iconTd.drawTileRectTo2dContext(ctx, ev.tileRect, x-n*offX, y-n*offY, scaleX,scaleY);
 						}
 						// else {
 							// Contrast outline
 							if( !isSmallGrid ) {
 								ctx.beginPath();
 								ctx.rect(
-									x+thickness*0.5 + n*offX,
-									y+thickness*0.5 + n*offY,
-									tilesetDef.tileGridSize-thickness-1,
-									tilesetDef.tileGridSize-thickness-1
+									x+thicknessX*0.5 + n*offX,
+									y+thicknessY*0.5 + n*offY,
+									tilesetDef.tileGridWid-thicknessX-1,
+									tilesetDef.tileGridHei-thicknessY-1
 								);
 								ctx.strokeStyle = C.intToHex( C.getLuminosity(ev.color)>=0.2 ? 0x0 : C.setLuminosityInt(ev.color,0.3) );
-								ctx.lineWidth = thickness+2;
+								ctx.lineWidth = thicknessX+2;
 								ctx.stroke();
 							}
 
 							// Color rect
 							ctx.beginPath();
 							ctx.rect(
-								x+thickness*0.5 + n*offX,
-								y+thickness*0.5 + n*offY,
-								tilesetDef.tileGridSize-thickness - (isSmallGrid?0:1),
-								tilesetDef.tileGridSize-thickness - (isSmallGrid?0:1)
+								x+thicknessX*0.5 + n*offX,
+								y+thicknessY*0.5 + n*offY,
+								tilesetDef.tileGridWid-thicknessX - (isSmallGrid?0:1),
+								tilesetDef.tileGridHei-thicknessY - (isSmallGrid?0:1)
 							);
 							ctx.strokeStyle = C.intToHex( ev.color );
-							ctx.lineWidth = thickness;
+							ctx.lineWidth = thicknessX;
 							ctx.stroke();
 						// }
 
@@ -158,7 +160,7 @@ class TileTagger extends ui.Tileset {
 				// Darken tile if there's no tag
 				if( n==0 && curEnumValue!=null ) {
 					ctx.beginPath();
-					ctx.rect(x, y, tilesetDef.tileGridSize, tilesetDef.tileGridSize );
+					ctx.rect(x, y, tilesetDef.tileGridWid, tilesetDef.tileGridHei );
 					ctx.fillStyle = C.intToHexRGBA( C.addAlphaF(0x0, 0.3) );
 					ctx.fill();
 				}
@@ -166,12 +168,13 @@ class TileTagger extends ui.Tileset {
 
 			// Custom data icons
 			if( tilesetDef.hasTileCustomData(tileId) ) {
-				var img = tilesetDef.tileGridSize<16 ? dataTinyImg : dataImg;
-				var scale = M.imax(1, M.floor(tilesetDef.tileGridSize/32) );
+				var img = tilesetDef.tileGridWid<16 && tilesetDef.tileGridHei<16 ? dataTinyImg : dataImg;
+				var scaleX = M.imax(1, M.floor(tilesetDef.tileGridWid/32) );
+				var scaleY = M.imax(1, M.floor(tilesetDef.tileGridHei/32) );
 				if( img.complete )
-					ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
+					ctx.drawImage(img, x, y, img.width*scaleX, img.height*scaleY);
 				else
-					img.onload = ()->ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
+					img.onload = ()->ctx.drawImage(img, x, y, img.width*scaleX, img.height*scaleY);
 			}
 		}
 	}

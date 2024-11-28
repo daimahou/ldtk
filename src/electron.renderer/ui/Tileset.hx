@@ -158,7 +158,7 @@ class Tileset {
 
 	public function renderGrid() {
 		var ctx = canvas.getContext2d();
-		ctx.lineWidth = M.fmax( 1, Std.int( tilesetDef.tileGridSize / 16 ) );
+		ctx.lineWidth = M.fmax( 1, Std.int( tilesetDef.tileGridWid / 16 ) );
 		var strokeOffset = ctx.lineWidth*0.5; // draw in the middle of the pixel to avoid blur
 
 		for(tileId in 0...tilesetDef.cWid*tilesetDef.cHei) {
@@ -170,8 +170,8 @@ class Tileset {
 			ctx.rect(
 				x + strokeOffset,
 				y + strokeOffset,
-				tilesetDef.tileGridSize - strokeOffset*2,
-				tilesetDef.tileGridSize - strokeOffset*2
+				tilesetDef.tileGridWid - strokeOffset*2,
+				tilesetDef.tileGridHei - strokeOffset*2
 			);
 
 			// Outline color
@@ -274,12 +274,12 @@ class Tileset {
 	inline function pageToLocalY(v:Float) return M.round( ( v - jWrapper.offset().top ) / zoom + scrollY );
 
 	inline function pageToCx(v:Float, clamp=true) : Int {
-		var v = M.floor( (pageToLocalX(v)-tilesetDef.padding) / ( tilesetDef.tileGridSize+tilesetDef.spacing ) );
+		var v = M.floor( (pageToLocalX(v)-tilesetDef.padding) / ( tilesetDef.tileGridWid+tilesetDef.spacing ) );
 		return clamp ? M.iclamp(v,0,tilesetDef.cWid-1) : v;
 	}
 
 	inline function pageToCy(v:Float, clamp=true) : Int {
-		var v = M.floor( (pageToLocalY(v)-tilesetDef.padding) / ( tilesetDef.tileGridSize+tilesetDef.spacing ) );
+		var v = M.floor( (pageToLocalY(v)-tilesetDef.padding) / ( tilesetDef.tileGridHei+tilesetDef.spacing ) );
 		return clamp ? M.iclamp(v,0,tilesetDef.cHei-1) : v;
 	}
 
@@ -296,30 +296,31 @@ class Tileset {
 
 		var ctx = canvas.getContext2d();
 		var thick = 2;
-		var grid = tilesetDef.tileGridSize;
+		var gridSizeX = tilesetDef.tileGridWid;
+		var gridSizeY = tilesetDef.tileGridHei;
 		for(tid in tileIds) {
 			var x = tilesetDef.getTileSourceX(tid);
 			var y = tilesetDef.getTileSourceY(tid);
 
 			ctx.fillStyle = col.toCssRgba(0.4);
-			ctx.fillRect(x,y,grid,grid);
+			ctx.fillRect(x,y,gridSizeX,gridSizeY);
 			ctx.fillStyle = col.toHex();
 
 			// Left border
 			if( !tileMap.exists(tid-1) )
-				ctx.fillRect(x-thick, y, thick, grid);
+				ctx.fillRect(x-thick, y, thick, gridSizeY);
 
 			// Right border
 			if( !tileMap.exists(tid+1) )
-				ctx.fillRect(x+grid, y, thick, grid);
+				ctx.fillRect(x+gridSizeX, y, thick, gridSizeY);
 
 			// Top border
 			if( !tileMap.exists(tid-tilesetDef.cWid) )
-				ctx.fillRect(x, y-thick, grid, thick);
+				ctx.fillRect(x, y-thick, gridSizeX, thick);
 
 			// Bottom border
 			if( !tileMap.exists(tid+tilesetDef.cWid) )
-				ctx.fillRect(x, y+grid, grid, thick);
+				ctx.fillRect(x, y+gridSizeY, gridSizeX, thick);
 		}
 	}
 
@@ -392,8 +393,8 @@ class Tileset {
 		cy+=0.5;
 
 
-		tx = tilesetDef.padding + cx*(tilesetDef.tileGridSize+tilesetDef.spacing) - jTilesetWrapper.outerWidth()*0.5/zoom;
-		ty = tilesetDef.padding + cy*(tilesetDef.tileGridSize+tilesetDef.spacing) - jTilesetWrapper.outerHeight()*0.25/zoom;
+		tx = tilesetDef.padding + cx*(tilesetDef.tileGridWid+tilesetDef.spacing) - jTilesetWrapper.outerWidth()*0.5/zoom;
+		ty = tilesetDef.padding + cy*(tilesetDef.tileGridHei+tilesetDef.spacing) - jTilesetWrapper.outerHeight()*0.25/zoom;
 
 		if( instant ) {
 			scrollX = tx;
@@ -423,8 +424,9 @@ class Tileset {
 		cy+=0.5;
 
 
-		tx = tilesetDef.padding + cx*(tilesetDef.tileGridSize+tilesetDef.spacing) - jTilesetWrapper.outerWidth()*0.5/zoom;
-		ty = tilesetDef.padding + cy*(tilesetDef.tileGridSize+tilesetDef.spacing) - jTilesetWrapper.outerHeight()*0.5/zoom;
+		tx = tilesetDef.padding + cx*(tilesetDef.tileGridWid+tilesetDef.spacing) - jTilesetWrapper.outerWidth()*0.5/zoom;
+		ty = tilesetDef.padding + cy*(tilesetDef.tileGridHei+tilesetDef.spacing) - jTilesetWrapper.outerHeight()*0.5/zoom;
+		
 		if( instant ) {
 			scrollX = tx;
 			scrollY = ty;
@@ -469,9 +471,8 @@ class Tileset {
 
 			e.css("left", x+"px");
 			e.css("top", y+"px");
-			var grid = tilesetDef.tileGridSize;
-			e.css("width", ( cWid!=null ? cWid*grid + (cWid-1)*tilesetDef.spacing : tilesetDef.tileGridSize )+"px");
-			e.css("height", ( cHei!=null ? cHei*grid + (cHei-1)*tilesetDef.spacing: tilesetDef.tileGridSize )+"px");
+			e.css("width", ( cWid!=null ? cWid*tilesetDef.tileGridWid + (cWid-1)*tilesetDef.spacing : tilesetDef.tileGridWid )+"px");
+			e.css("height", ( cHei!=null ? cHei*tilesetDef.tileGridHei + (cHei-1)*tilesetDef.spacing: tilesetDef.tileGridHei )+"px");
 		}
 
 		return wrapper;

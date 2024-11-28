@@ -401,38 +401,38 @@ class Home extends Page {
 		var ctx = new ui.modal.ContextMenu(ev);
 		ctx.addTitle( L.t._("Import a project from another app") );
 		ctx.setAnchor( MA_JQuery(new J(ev.target)) );
-		ctx.addAction({
-			label: L.t._("Ogmo 3 project"),
-			cb: ()->onImportOgmo(),
-		});
+		// ctx.addAction({
+		// 	label: L.t._("Ogmo 3 project"),
+		// 	cb: ()->onImportOgmo(),
+		// });
 	}
 
-	function onImportOgmo() {
-		var dir = settings.getUiDir("ImportOgmo", App.ME.getDefaultDialogDir());
+	// function onImportOgmo() {
+	// 	var dir = settings.getUiDir("ImportOgmo", App.ME.getDefaultDialogDir());
 
-		dn.js.ElectronDialogs.openFile([".ogmo"], dir, function(filePath) {
-			settings.storeUiDir("ImportOgmo", dn.FilePath.extractDirectoryWithoutSlash(filePath,true));
-			var i = new importer.OgmoLoader(filePath);
-			ui.modal.MetaProgress.start("Importing OGMO 3 project...", 3);
-			delayer.addS( ()->{
-				var p = i.load();
-				i.log.printAllToLog(App.LOG);
-				if( p!=null ) {
-					ui.modal.MetaProgress.advance();
-					new ui.ProjectSaver(this, p, (ok)->{
-						ui.modal.MetaProgress.advance();
-						N.success("Success!");
-						App.ME.loadProject(p.filePath.full, (ok)->ui.modal.MetaProgress.completeCurrent());
-					});
-				}
-				else {
-					ui.modal.MetaProgress.closeCurrent();
-					new ui.modal.dialog.LogPrint(i.log);
-					new ui.modal.dialog.Message(L.t._("Failed to import this Ogmo project. If you really need this, feel free to send me the Ogmo project file so I can check and fix the updater (see contact link)."));
-				}
-			}, 0.1);
-		});
-	}
+	// 	dn.js.ElectronDialogs.openFile([".ogmo"], dir, function(filePath) {
+	// 		settings.storeUiDir("ImportOgmo", dn.FilePath.extractDirectoryWithoutSlash(filePath,true));
+	// 		var i = new importer.OgmoLoader(filePath);
+	// 		ui.modal.MetaProgress.start("Importing OGMO 3 project...", 3);
+	// 		delayer.addS( ()->{
+	// 			var p = i.load();
+	// 			i.log.printAllToLog(App.LOG);
+	// 			if( p!=null ) {
+	// 				ui.modal.MetaProgress.advance();
+	// 				new ui.ProjectSaver(this, p, (ok)->{
+	// 					ui.modal.MetaProgress.advance();
+	// 					N.success("Success!");
+	// 					App.ME.loadProject(p.filePath.full, (ok)->ui.modal.MetaProgress.completeCurrent());
+	// 				});
+	// 			}
+	// 			else {
+	// 				ui.modal.MetaProgress.closeCurrent();
+	// 				new ui.modal.dialog.LogPrint(i.log);
+	// 				new ui.modal.dialog.Message(L.t._("Failed to import this Ogmo project. If you really need this, feel free to send me the Ogmo project file so I can check and fix the updater (see contact link)."));
+	// 			}
+	// 		}, 0.1);
+	// 	});
+	// }
 
 
 	function showSamples(anim=true) {

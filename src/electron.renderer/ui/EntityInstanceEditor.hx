@@ -229,7 +229,7 @@ class EntityInstanceEditor extends dn.Process {
 		i.linkEvent( EntityInstanceChanged(ei) );
 		i.onChange = ()->onEntityFieldChanged();
 		if( UNIT_GRID )
-			i.setUnit(ei._li.def.gridSize);
+			i.setUnit(ei._li.def.gridWid);
 
 		// Y
 		var i = Input.linkToHtmlInput(ei.y, jCoords.find("[name=y]"));
@@ -238,7 +238,7 @@ class EntityInstanceEditor extends dn.Process {
 		i.linkEvent( EntityInstanceChanged(ei) );
 		i.onChange = ()->onEntityFieldChanged();
 		if( UNIT_GRID )
-			i.setUnit(ei._li.def.gridSize);
+			i.setUnit(ei._li.def.gridHei);
 
 		// Width
 		var i = new form.input.IntInput(
@@ -252,7 +252,7 @@ class EntityInstanceEditor extends dn.Process {
 		i.linkEvent( EntityInstanceChanged(ei) );
 		i.onChange = ()->onEntityFieldChanged();
 		if( UNIT_GRID )
-			i.setUnit(ei._li.def.gridSize);
+			i.setUnit(ei._li.def.gridWid);
 
 		// Height
 		var i = new form.input.IntInput(
@@ -266,7 +266,7 @@ class EntityInstanceEditor extends dn.Process {
 		i.linkEvent( EntityInstanceChanged(ei) );
 		i.onChange = ()->onEntityFieldChanged();
 		if( UNIT_GRID )
-			i.setUnit(ei._li.def.gridSize);
+			i.setUnit(ei._li.def.gridHei);
 
 
 		// References to this

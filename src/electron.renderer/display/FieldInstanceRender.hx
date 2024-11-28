@@ -436,7 +436,7 @@ class FieldInstanceRender {
 				switch ctx {
 					case EntityCtx(g, ei, ld):
 						g.lineStyle(2*zoomScale, baseColor, 0.33);
-						g.drawCircle(0,0, ( fi.def.type==F_Float ? fi.getFloat(0) : fi.getInt(0) ) * ld.gridSize);
+						g.drawCircle(0,0, ( fi.def.type==F_Float ? fi.getFloat(0) : fi.getInt(0) ) * ld.gridWid); // TODO: confirm this is correct
 
 					case LevelCtx(_):
 				}
@@ -492,8 +492,8 @@ class FieldInstanceRender {
 							if( pt==null )
 								continue;
 
-							var tx = M.round( (pt.cx+0.5)*ld.gridSize - ei.x + ei._li.pxTotalOffsetX );
-							var ty = M.round( (pt.cy+0.5)*ld.gridSize - ei.y + ei._li.pxTotalOffsetY );
+							var tx = M.round( (pt.cx+0.5)*ld.gridHei - ei.x + ei._li.pxTotalOffsetX );
+							var ty = M.round( (pt.cy+0.5)*ld.gridWid - ei.y + ei._li.pxTotalOffsetY );
 							if( fd.editorDisplayMode!=Points )
 								renderSimpleLink(g, baseColor, fx,fy, tx,ty, fi.def.editorLinkStyle);
 

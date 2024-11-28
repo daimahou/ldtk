@@ -69,8 +69,8 @@ class EnumDef {
 					tilesetUid: td.uid,
 					x: td.getTileSourceX(oldTileId),
 					y: td.getTileSourceY(oldTileId),
-					w: td.tileGridSize,
-					h: td.tileGridSize,
+					w: td.tileGridWid,
+					h: td.tileGridHei,
 				}
 			}
 

@@ -15,12 +15,13 @@ class PickPoint extends Tool<{ x:Int, y:Int }> {
 		super.customCursor(ev, m);
 
 		if( pickOrigin!=null ) {
-			var grid = curLayerInstance.def.scaledGridSize;
+			var gridScaleX = curLayerInstance.def.scaledGridWid;
+			var gridScaleY = curLayerInstance.def.scaledGridHei;
 			editor.cursor.set( Link(
-				curLayerInstance.pxParallaxX + (pickOrigin.cx+0.5)*grid,
-				curLayerInstance.pxParallaxY + (pickOrigin.cy+0.5)*grid,
-				curLayerInstance.pxParallaxX + (m.cx+0.5)*grid,
-				curLayerInstance.pxParallaxY + (m.cy+0.5)*grid,
+				curLayerInstance.pxParallaxX + (pickOrigin.cx+0.5)*gridScaleX,
+				curLayerInstance.pxParallaxY + (pickOrigin.cy+0.5)*gridScaleY,
+				curLayerInstance.pxParallaxX + (m.cx+0.5)*gridScaleX,
+				curLayerInstance.pxParallaxY + (m.cy+0.5)*gridScaleY,
 				pickOrigin.color
 			));
 		}

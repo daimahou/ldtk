@@ -391,8 +391,8 @@ class LevelRender extends dn.Process {
 
 	public function bleepLayerRectCase(li:data.inst.LayerInstance, cx:Int, cy:Int, cWid:Int, cHei:Int, col:UInt, thickness=1) : Bleep {
 		return bleepLevelRectPx(
-			cx*li.def.scaledGridSize + li.pxParallaxX, cy*li.def.scaledGridSize + li.pxParallaxY,
-			cWid*li.def.scaledGridSize, cHei*li.def.scaledGridSize,
+			cx*li.def.scaledGridWid + li.pxParallaxX, cy*li.def.scaledGridHei + li.pxParallaxY,
+			cWid*li.def.scaledGridWid, cHei*li.def.scaledGridHei,
 			col, thickness
 		);
 	}
@@ -401,8 +401,8 @@ class LevelRender extends dn.Process {
 		var g = new h2d.Graphics();
 		root.add(g, Const.DP_UI);
 		g.lineStyle(2, c, 1);
-		g.drawCircle( 0,0, li.def.gridSize*0.5 );
-		g.setPosition( M.round((cx+0.5)*li.def.gridSize), M.round((cy+0.5)*li.def.gridSize) );
+		g.drawCircle( 0,0, li.def.gridWid*0.5 ); // TODO: Make sure this is right
+		g.setPosition( M.round((cx+0.5)*li.def.gridWid), M.round((cy+0.5)*li.def.gridHei) );
 		createChildProcess( p->{
 			g.alpha-=tmod*0.04;
 			if( g.alpha<=0 ) {
@@ -502,25 +502,26 @@ class LevelRender extends dn.Process {
 		var level = editor.curLevel;
 
 		// Main grid
-		var size = li.def.gridSize;
+		var width = li.def.gridWid;
+		var height = li.def.gridHei;
 		grid.lineStyle(1/camera.adjustedZoom, col, 0.07);
 		var x = 0;
 		for( cx in 0...editor.curLayerInstance.cWid+1 ) { // Verticals
-			x = cx*size + li.pxTotalOffsetX;
+			x = cx*width + li.pxTotalOffsetX;
 			if( x<0 || x>level.pxWid )
 				continue;
 
 			grid.moveTo( x, M.fmax(0,li.pxTotalOffsetY) );
-			grid.lineTo( x, M.fmin(li.cHei*size, level.pxHei) );
+			grid.lineTo( x, M.fmin(li.cHei*height, level.pxHei) );
 		}
 		var y = 0;
 		for( cy in 0...editor.curLayerInstance.cHei+1 ) { // Horizontals
-			y = cy*size + li.pxTotalOffsetY;
+			y = cy*height + li.pxTotalOffsetY;
 			if( y<0 || y>level.pxHei)
 				continue;
 
 			grid.moveTo( M.fmax(0,li.pxTotalOffsetX), y );
-			grid.lineTo( M.fmin(li.cWid*size, level.pxWid), y );
+			grid.lineTo( M.fmin(li.cWid*width, level.pxWid), y );
 		}
 
 
@@ -702,7 +703,7 @@ class LevelRender extends dn.Process {
 	public inline function asyncPaint(li:data.inst.LayerInstance, cx,cy, col:dn.Col) {
 		if( li.def.useAsyncRender ) {
 			if( asyncTmpRender==null ) {
-				asyncTmpRender = new dn.heaps.PixelGrid(li.def.gridSize, li.cWid, li.cHei);
+				asyncTmpRender = new dn.heaps.PixelGrid(li.def.gridWid, li.def.gridHei, li.cWid, li.cHei);
 				root.add(asyncTmpRender, Const.DP_MAIN);
 				asyncTmpRender.blendMode = Add;
 				asyncTmpRender.alpha = 0.7;

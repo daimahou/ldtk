@@ -189,8 +189,8 @@ class LevelSpotPicker extends ui.ValuePicker<Coords> {
 					b.y = dn.M.round( b.y/world.worldGridHeight ) * world.worldGridHeight;
 				}
 				else if( App.ME.settings.v.grid ) {
-					b.x = dn.M.round( b.x/project.defaultGridSize ) * project.defaultGridSize;
-					b.y = dn.M.round( b.y/project.defaultGridSize ) * project.defaultGridSize;
+					b.x = dn.M.round( b.x/project.defaultGridWidth ) * project.defaultGridWidth;
+					b.y = dn.M.round( b.y/project.defaultGridHeight ) * project.defaultGridHeight;
 				}
 
 			case LinearHorizontal:

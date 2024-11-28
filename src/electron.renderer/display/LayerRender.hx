@@ -59,8 +59,8 @@ class LayerRender {
 	public static inline function renderAutoTileInfos(li:data.inst.LayerInstance, td:data.def.TilesetDef, tileInfos, tg:h2d.TileGroup) {
 		_cachedIdentityVector.a = tileInfos.a;
 		@:privateAccess tg.content.addTransform(
-			tileInfos.x + ( ( dn.M.hasBit(tileInfos.flips,0)?1:0 ) + li.def.tilePivotX ) * li.def.gridSize + li.pxTotalOffsetX,
-			tileInfos.y + ( ( dn.M.hasBit(tileInfos.flips,1)?1:0 ) + li.def.tilePivotY ) * li.def.gridSize + li.pxTotalOffsetY,
+			tileInfos.x + ( ( dn.M.hasBit(tileInfos.flips,0)?1:0 ) + li.def.tilePivotX ) * li.def.gridWid + li.pxTotalOffsetX,
+			tileInfos.y + ( ( dn.M.hasBit(tileInfos.flips,1)?1:0 ) + li.def.tilePivotY ) * li.def.gridHei + li.pxTotalOffsetY,
 			dn.M.hasBit(tileInfos.flips,0)?-1:1,
 			dn.M.hasBit(tileInfos.flips,1)?-1:1,
 			0,
@@ -75,8 +75,8 @@ class LayerRender {
 		t.setCenterRatio(li.def.tilePivotX, li.def.tilePivotY);
 		var sx = M.hasBit(tileInf.flips, 0) ? -1 : 1;
 		var sy = M.hasBit(tileInf.flips, 1) ? -1 : 1;
-		var tx = (cx + li.def.tilePivotX + (sx<0?1:0)) * li.def.gridSize + li.pxTotalOffsetX;
-		var ty = (cy + li.def.tilePivotX + (sy<0?1:0)) * li.def.gridSize + li.pxTotalOffsetY;
+		var tx = (cx + li.def.tilePivotX + (sx<0?1:0)) * li.def.gridWid + li.pxTotalOffsetX;
+		var ty = (cy + li.def.tilePivotX + (sy<0?1:0)) * li.def.gridHei + li.pxTotalOffsetY;
 		tg.addTransform(tx, ty, sx, sy, 0, t);
 	}
 
@@ -120,7 +120,7 @@ class LayerRender {
 				var ed = td.getTagsEnumDef();
 
 				// Auto-layer tiles
-				var pixelGrid = new dn.heaps.PixelGrid(li.def.gridSize, li.cWid, li.cHei, renderTarget);
+				var pixelGrid = new dn.heaps.PixelGrid(li.def.gridWid, li.def.gridHei, li.cWid, li.cHei, renderTarget);
 				pixelGrid.x = li.pxTotalOffsetX;
 				pixelGrid.y = li.pxTotalOffsetY;
 
@@ -136,7 +136,6 @@ class LayerRender {
 
 				li.def.iterateActiveRulesInDisplayOrder( li, (r)-> {
 					if( li.autoTilesCache.exists( r.uid ) ) {
-						var grid = li.def.gridSize;
 						for(tilesArray in li.autoTilesCache.get( r.uid ))
 						for(tileInfos in tilesArray) {
 							// Tile
@@ -148,10 +147,10 @@ class LayerRender {
 									if( td.hasTag(ev.id, tileInfos.tid)) {
 										gr.lineStyle(1, ev.color, 1);
 										gr.drawRect(
-											tileInfos.x + li.def.tilePivotX*li.def.gridSize + li.pxTotalOffsetX,
-											tileInfos.y + li.def.tilePivotY*li.def.gridSize + li.pxTotalOffsetY,
-											li.def.gridSize - 1 - n * 2,
-											li.def.gridSize - 1 - n * 2
+											tileInfos.x + li.def.tilePivotX*li.def.gridWid + li.pxTotalOffsetX,
+											tileInfos.y + li.def.tilePivotY*li.def.gridHei + li.pxTotalOffsetY,
+											li.def.gridWid - 1 - n * 2,
+											li.def.gridHei - 1 - n * 2
 										);
 										n++;
 									}
@@ -163,7 +162,7 @@ class LayerRender {
 			}
 			else if( li.def.type==IntGrid ) {
 				// Normal intGrid
-				var pixelGrid = new dn.heaps.PixelGrid(li.def.gridSize, li.cWid, li.cHei, renderTarget);
+				var pixelGrid = new dn.heaps.PixelGrid(li.def.gridWid, li.def.gridHei, li.cWid, li.cHei, renderTarget);
 				pixelGrid.x = li.pxTotalOffsetX;
 				pixelGrid.y = li.pxTotalOffsetY;
 
@@ -209,10 +208,10 @@ class LayerRender {
 								if( td.hasTag(ev.id, tileInf.tileId)) {
 									gr.lineStyle(1, ev.color, 1);
 									gr.drawRect(
-										(cx + li.def.tilePivotX)*li.def.gridSize + li.pxTotalOffsetX  +  n + .5,
-										(cy + li.def.tilePivotY)*li.def.gridSize + li.pxTotalOffsetY  +  n + .5,
-										li.def.gridSize - 1 - n * 2,
-										li.def.gridSize - 1 - n * 2
+										(cx + li.def.tilePivotX)*li.def.gridWid + li.pxTotalOffsetX  +  n + .5,
+										(cy + li.def.tilePivotY)*li.def.gridHei + li.pxTotalOffsetY  +  n + .5,
+										li.def.gridWid - 1 - n * 2,
+										li.def.gridHei - 1 - n * 2
 									);
 									n++;
 								}
@@ -223,14 +222,14 @@ class LayerRender {
 			}
 			else {
 				// Missing tileset
-				var tileError = data.def.TilesetDef.makeErrorTile(li.def.gridSize);
+				var tileError = data.def.TilesetDef.makeErrorTile(li.def.gridWid, li.def.gridHei);
 				var tg = new h2d.TileGroup( tileError, renderTarget );
 				for(cy in 0...li.cHei)
 				for(cx in 0...li.cWid)
 					if( li.hasAnyGridTile(cx,cy) )
 						tg.add(
-							(cx + li.def.tilePivotX) * li.def.gridSize,
-							(cy + li.def.tilePivotX) * li.def.gridSize,
+							(cx + li.def.tilePivotX) * li.def.gridWid,
+							(cy + li.def.tilePivotX) * li.def.gridHei,
 							tileError
 						);
 			}

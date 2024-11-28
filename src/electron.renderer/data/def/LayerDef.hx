@@ -12,8 +12,10 @@ class LayerDef {
 	public var doc: Null<String>;
 	public var uiColor: Null<dn.Col>;
 
-	public var gridSize : Int = Project.DEFAULT_GRID_SIZE;
-	public var scaledGridSize(get,never) : Float; inline function get_scaledGridSize() return gridSize*getScale();
+	public var gridWid : Int = Project.DEFAULT_GRID_SIZE;
+	public var gridHei : Int = Project.DEFAULT_GRID_SIZE;
+	public var scaledGridWid(get,never) : Float; inline function get_scaledGridWid() return gridWid*getScale();
+	public var scaledGridHei(get,never) : Float; inline function get_scaledGridHei() return gridHei*getScale();
 	public var guideGridWid : Int = 0;
 	public var guideGridHei : Int = 0;
 	public var displayOpacity : Float = 1.0;
@@ -74,7 +76,8 @@ class LayerDef {
 	}
 
 	@:keep public function toString() {
-		return 'LayerDef.$identifier($type,${gridSize}px)';
+		return 'LayerDef.$identifier($type,${gridWid}px,${gridHei}px)';
+		// return 'LayerDef.$identifier($type,${gridSize}px)';
 	}
 
 	public static function fromJson(p:Project, jsonVersion:String, json:ldtk.Json.LayerDefJson) {
@@ -98,7 +101,9 @@ class LayerDef {
 		var o = new LayerDef( p, JsonTools.readInt(json.uid), JsonTools.readEnum(ldtk.Json.LayerType, json.type, false));
 		o.identifier = JsonTools.readString(json.identifier, "Layer"+o.uid);
 		o.doc = JsonTools.unescapeString(json.doc);
-		o.gridSize = JsonTools.readInt(json.gridSize, Project.DEFAULT_GRID_SIZE);
+		// o.gridSize = JsonTools.readInt(json.gridSize, Project.DEFAULT_GRID_SIZE);
+		o.gridWid = JsonTools.readInt(json.gridWid, Project.DEFAULT_GRID_SIZE);
+		o.gridHei = JsonTools.readInt(json.gridHei, Project.DEFAULT_GRID_SIZE);
 		o.guideGridWid = JsonTools.readInt(json.guideGridWid, 0);
 		o.guideGridHei = JsonTools.readInt(json.guideGridHei, 0);
 		o.displayOpacity = JsonTools.readFloat(json.displayOpacity, 1);
@@ -179,7 +184,9 @@ class LayerDef {
 			doc: JsonTools.escapeNullableString(doc),
 			uiColor: uiColor==null ? null : uiColor.toHex(),
 
-			gridSize: gridSize,
+			// gridSize: gridSize,
+			gridWid: gridWid,
+			gridHei: gridHei,
 			guideGridWid: guideGridWid,
 			guideGridHei: guideGridHei,
 			displayOpacity: JsonTools.writeFloat(displayOpacity),

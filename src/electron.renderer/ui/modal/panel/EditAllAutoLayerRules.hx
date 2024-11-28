@@ -134,8 +134,8 @@ class EditAllAutoLayerRules extends ui.modal.Panel {
 					editor.levelRender.temp.drawRect(
 						t.x+li.pxTotalOffsetX,
 						t.y+li.pxTotalOffsetY,
-						li.def.gridSize,
-						li.def.gridSize
+						li.def.gridWid,
+						li.def.gridHei
 					);
 				}
 
@@ -298,7 +298,7 @@ class EditAllAutoLayerRules extends ui.modal.Panel {
 		else {
 			jSelect.prop("disabled",false);
 			function _tilesetCompatible(td:data.def.TilesetDef) {
-				return td!=null && curTd!=null && td.cWid==curTd.cWid && td.cHei==curTd.cHei && td.tileGridSize==curTd.tileGridSize;
+				return td!=null && curTd!=null && td.cWid==curTd.cWid && td.cHei==curTd.cHei && td.tileGridWid==curTd.tileGridWid&& td.tileGridHei==curTd.tileGridHei;
 			}
 			var all = project.defs.tilesets.copy();
 			all.sort( (a,b)->{

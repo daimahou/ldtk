@@ -172,21 +172,21 @@ class Cursor {
 
 				final p = 2;
 				g.lineStyle(2, 0x0);
-				g.drawRect(p,p, li.def.gridSize-p*2, li.def.gridSize-p*2);
+				g.drawRect(p,p, li.def.gridWid-p*2, li.def.gridHei-p*2);
 
 				g.lineStyle(2, col);
-				g.drawRect(0,0, li.def.gridSize, li.def.gridSize);
+				g.drawRect(0,0, li.def.gridWid, li.def.gridHei);
 
 			case GridRect(li, cx, cy, wid, hei, col):
 				initRender();
 
 				final p = 2;
 				g.lineStyle(2, 0x0);
-				g.drawRect(p,p, li.def.gridSize*wid-p*2, li.def.gridSize*hei-p*2);
+				g.drawRect(p,p, li.def.gridWid*wid-p*2, li.def.gridHei*hei-p*2);
 
 				g.lineStyle(2, col);
 				g.beginFill(col,0.35);
-				g.drawRect(0,0, li.def.gridSize*wid, li.def.gridSize*hei);
+				g.drawRect(0,0, li.def.gridWid*wid, li.def.gridHei*hei);
 
 			case Entity(li, def, ei, x, y, highlight):
 				initRender();
@@ -229,7 +229,8 @@ class Cursor {
 						bottom = M.imax( bottom, td.getTileCy(tid) );
 					}
 
-					var gridDiffScale = M.imax(1, M.round( td.tileGridSize / li.def.gridSize ) );
+					var gridDiffScaleX = M.imax(1, M.round( td.tileGridWid / li.def.gridWid ) );
+					var gridDiffScaleY = M.imax(1, M.round( td.tileGridHei / li.def.gridHei ) );
 					var flipX = M.hasBit(flips,0);
 					var flipY = M.hasBit(flips,1);
 					for(tid in tileIds) {
@@ -237,8 +238,8 @@ class Cursor {
 						var cy = td.getTileCy(tid);
 						var bmp = new h2d.Bitmap( td.getTileById(tid), wrapper );
 						bmp.tile.setCenterRatio(li.def.tilePivotX, li.def.tilePivotY);
-						bmp.x = (flipX ? right-cx+1 : cx-left) * li.def.gridSize * gridDiffScale;
-						bmp.y = (flipY ? bottom-cy+1 : cy-top) * li.def.gridSize * gridDiffScale;
+						bmp.x = (flipX ? right-cx+1 : cx-left) * li.def.gridWid * gridDiffScaleX;
+						bmp.y = (flipY ? bottom-cy+1 : cy-top) * li.def.gridHei * gridDiffScaleY;
 						bmp.scaleX = flipX ? -1 : 1;
 						bmp.scaleY = flipY ? -1 : 1;
 					}
@@ -303,10 +304,10 @@ class Cursor {
 					root.y += y*cam.adjustedZoom;
 
 				case GridCell(li, cx, cy, _), GridRect(li, cx, cy, _):
-					root.x += ( li.pxParallaxX + cx*li.def.scaledGridSize ) * cam.adjustedZoom;
-					root.y += ( li.pxParallaxY + cy*li.def.scaledGridSize ) * cam.adjustedZoom;
+					root.x += ( li.pxParallaxX + cx*li.def.scaledGridWid ) * cam.adjustedZoom;
+					root.y += ( li.pxParallaxY + cy*li.def.scaledGridHei ) * cam.adjustedZoom;
 					applyLayerScale( li.def.getScale() );
-					centerLabelAbove(li.def.gridSize*0.5, 0);
+					centerLabelAbove(li.def.gridWid*0.5, 0);
 
 				case Entity(li, def, ei, x, y, highlight):
 					root.x += x*cam.adjustedZoom * li.def.getScale() + li.pxParallaxX * cam.adjustedZoom;
@@ -317,10 +318,10 @@ class Cursor {
 					centerLabelAbove( ( 0.5-def.pivotX )*w, (0-def.pivotY)*h );
 
 				case Tiles(li, tileIds, cx, cy, flips):
-					root.x += ( li.pxParallaxX + cx*li.def.scaledGridSize ) * cam.adjustedZoom;
-					root.y += ( li.pxParallaxY + cy*li.def.scaledGridSize ) * cam.adjustedZoom;
+					root.x += ( li.pxParallaxX + cx*li.def.scaledGridWid ) * cam.adjustedZoom;
+					root.y += ( li.pxParallaxY + cy*li.def.scaledGridHei ) * cam.adjustedZoom;
 					applyLayerScale( li.def.getScale() );
-					centerLabelAbove(li.def.gridSize*0.5, 0);
+					centerLabelAbove(li.def.gridWid*0.5, 0);
 
 				case Link(fx, fy, tx, ty, color):
 					root.x += fx*cam.adjustedZoom;

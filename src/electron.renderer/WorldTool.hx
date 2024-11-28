@@ -72,8 +72,8 @@ class WorldTool extends dn.Process {
 						editor.selectLevel(copy);
 						switch curWorld.worldLayout {
 							case Free, GridVania:
-								copy.worldX += project.defaultGridSize*4;
-								copy.worldY += project.defaultGridSize*4;
+								copy.worldX += project.defaultGridWidth*4;
+								copy.worldY += project.defaultGridHeight*4;
 
 							case LinearHorizontal:
 							case LinearVertical:
@@ -230,10 +230,11 @@ class WorldTool extends dn.Process {
 		clicked = false;
 	}
 
-	inline function getLevelSnapDist() return App.ME.isShiftDown() || App.ME.isCtrlCmdDown() ? 0 : project.getSmartLevelGridSize() / ( editor.camera.adjustedZoom * 0.4 );
+	inline function getLevelSnapDistX() return App.ME.isShiftDown() || App.ME.isCtrlCmdDown() ? 0 : project.getSmartLevelGridWidth() / ( editor.camera.adjustedZoom * 0.4 );
+	inline function getLevelSnapDistY() return App.ME.isShiftDown() || App.ME.isCtrlCmdDown() ? 0 : project.getSmartLevelGridHeight() / ( editor.camera.adjustedZoom * 0.4 );
 
 	inline function snapLevelX(cur:data.Level, offset:Int, at:Int) {
-		if( M.fabs(cur.worldX + offset - at) <= getLevelSnapDist() ) {
+		if( M.fabs(cur.worldX + offset - at) <= getLevelSnapDistX() ) {
 			if( cur.willOverlapAnyLevel(at-offset, cur.worldY) )
 				return false;
 			else {
@@ -246,7 +247,7 @@ class WorldTool extends dn.Process {
 	}
 
 	inline function snapLevelY(l:data.Level, offset:Int, with:Int) {
-		if( M.fabs(l.worldY + offset - with) <= getLevelSnapDist() ) {
+		if( M.fabs(l.worldY + offset - with) <= getLevelSnapDistY() ) {
 			if( l.willOverlapAnyLevel(l.worldX, with-offset) )
 				return false;
 			else {
@@ -342,9 +343,8 @@ class WorldTool extends dn.Process {
 				case Free:
 					// Snap to grid
 					if( settings.v.grid ) {
-						var g = project.getSmartLevelGridSize();
-						clickedLevel.worldX = Std.int( clickedLevel.worldX/g ) * g;
-						clickedLevel.worldY = Std.int( clickedLevel.worldY/g ) * g;
+						clickedLevel.worldX = Std.int( clickedLevel.worldX/project.getSmartLevelGridWidth() ) * project.getSmartLevelGridWidth();
+						clickedLevel.worldY = Std.int( clickedLevel.worldY/project.getSmartLevelGridHeight() ) * project.getSmartLevelGridHeight();
 					}
 
 					// Snap to other levels
@@ -352,7 +352,10 @@ class WorldTool extends dn.Process {
 						if( l==clickedLevel )
 							continue;
 
-						if( clickedLevel.getBoundsDist(l) > getLevelSnapDist() )
+						if( clickedLevel.getBoundsDistX(l) > getLevelSnapDistX() )
+							continue;
+
+						if( clickedLevel.getBoundsDistY(l) > getLevelSnapDistY() )
 							continue;
 
 						// X

@@ -2,6 +2,8 @@ package data.def;
 
 import data.DataTypes;
 
+typedef ErrorPoint = { x : Int, y : Int }
+
 class TilesetDef {
 	var _project : Project;
 
@@ -10,7 +12,8 @@ class TilesetDef {
 	public var identifier(default,set) : String;
 	public var relPath(default,null) : Null<String>;
 	public var embedAtlas : Null<ldtk.Json.EmbedAtlas>;
-	public var tileGridSize : Int = Project.DEFAULT_GRID_SIZE;
+	public var tileGridWid : Int = Project.DEFAULT_GRID_SIZE;
+	public var tileGridHei : Int = Project.DEFAULT_GRID_SIZE;
 	public var padding : Int = 0; // px dist to atlas borders
 	public var spacing : Int = 0; // px space between consecutive tiles
 	public var savedSelections : Array<TilesetSelection> = [];
@@ -27,10 +30,10 @@ class TilesetDef {
 	public var pxHei = 0;
 
 	public var cWid(get,never) : Int;
-	inline function get_cWid() return !hasAtlasPointer() ? 0 : dn.M.ceil( (pxWid-padding*2) / (tileGridSize+spacing) );
+	inline function get_cWid() return !hasAtlasPointer() ? 0 : dn.M.ceil( (pxWid-padding*2) / (tileGridWid+spacing) );
 
 	public var cHei(get,never) : Int;
-	inline function get_cHei() return !hasAtlasPointer() ? 0 : dn.M.ceil( (pxHei-padding*2) / (tileGridSize+spacing) );
+	inline function get_cHei() return !hasAtlasPointer() ? 0 : dn.M.ceil( (pxHei-padding*2) / (tileGridHei+spacing) );
 
 	public var tags : Tags;
 
@@ -85,6 +88,14 @@ class TilesetDef {
 		return hasAtlasPointer() ? dn.M.imin(pxWid, pxHei) : 100;
 	}
 
+	public function getMaxTileGridWid() {
+		return hasAtlasPointer() ? pxWid : 100;
+	}
+
+	public function getMaxTileGridHei() {
+		return hasAtlasPointer() ? pxHei : 100;
+	}
+
 	function set_identifier(id:String) {
 		return identifier = Project.isValidIdentifier(id) ? Project.cleanupIdentifier(id, _project.identifierStyle) : identifier;
 	}
@@ -117,7 +128,8 @@ class TilesetDef {
 			embedAtlas: JsonTools.writeEnum(embedAtlas, true),
 			pxWid: pxWid,
 			pxHei: pxHei,
-			tileGridSize: tileGridSize,
+			tileGridWid: tileGridWid,
+			tileGridHei: tileGridHei,
 			spacing: spacing,
 			padding: padding,
 			tags: tags.toJson(),
@@ -178,7 +190,8 @@ class TilesetDef {
 		if( (cast json).path!=null ) json.relPath = (cast json).path;
 
 		var td = new TilesetDef( p, JsonTools.readInt(json.uid) );
-		td.tileGridSize = JsonTools.readInt(json.tileGridSize, Project.DEFAULT_GRID_SIZE);
+		td.tileGridWid = JsonTools.readInt(json.tileGridWid, Project.DEFAULT_GRID_SIZE);
+		td.tileGridHei = JsonTools.readInt(json.tileGridHei, Project.DEFAULT_GRID_SIZE);
 		td.spacing = JsonTools.readInt(json.spacing, 0);
 		td.padding = JsonTools.readInt(json.padding, 0);
 		td.pxWid = JsonTools.readInt( json.pxWid );
@@ -278,7 +291,8 @@ class TilesetDef {
 			pxWid = img.pixels.width;
 			pxHei = img.pixels.height;
 			App.LOG.fileOp(' -> Old size: ${oldPxWid}x$oldPxHei -> ${pxWid}x$pxHei');
-			tileGridSize = dn.M.imin( tileGridSize, getMaxTileGridSize() );
+			tileGridWid = dn.M.imin( tileGridWid, getMaxTileGridWid() );
+			tileGridHei = dn.M.imin( tileGridHei, getMaxTileGridHei() );
 			spacing = dn.M.imin( spacing, getMaxTileGridSize() );
 			padding = dn.M.imin( padding, getMaxTileGridSize() );
 
@@ -304,7 +318,7 @@ class TilesetDef {
 			return TrimmedPadding;
 		}
 
-		return remapAllTileIds( dn.M.ceil( oldPxWid/tileGridSize ) );
+		return remapAllTileIds( dn.M.ceil( oldPxWid/tileGridWid ) );
 	}
 
 
@@ -422,19 +436,19 @@ class TilesetDef {
 	}
 
 	public inline function getTileSourceX(tileId:Int) {
-		return padding + getTileCx(tileId) * ( tileGridSize + spacing );
+		return padding + getTileCx(tileId) * ( tileGridWid + spacing );
 	}
 
 	public inline function getTileSourceY(tileId:Int) {
-		return padding + getTileCy(tileId) * ( tileGridSize + spacing );
+		return padding + getTileCy(tileId) * ( tileGridHei + spacing );
 	}
 
 	public inline function xToCx(v:Float) : Int {
-		return Std.int( ( v - padding ) / (tileGridSize + spacing ) );
+		return Std.int( ( v - padding ) / (tileGridWid + spacing ) );
 	}
 
 	public inline function yToCy(v:Float) : Int {
-		return Std.int( ( v - padding ) / (tileGridSize + spacing ) );
+		return Std.int( ( v - padding ) / (tileGridHei + spacing ) );
 	}
 
 
@@ -508,9 +522,9 @@ class TilesetDef {
 		var bottom = 0;
 		for(tid in tileIds) {
 			top = dn.M.imin( top, getTileSourceY(tid) );
-			bottom = dn.M.imax( bottom, getTileSourceY(tid)+tileGridSize );
+			bottom = dn.M.imax( bottom, getTileSourceY(tid)+tileGridHei );
 			left = dn.M.imin( left, getTileSourceX(tid) );
-			right = dn.M.imax( right, getTileSourceX(tid)+tileGridSize );
+			right = dn.M.imax( right, getTileSourceX(tid)+tileGridWid );
 		}
 		return {
 			tilesetUid: this.uid,
@@ -526,8 +540,8 @@ class TilesetDef {
 		return {
 			x: getTileSourceX(tid),
 			y: getTileSourceY(tid),
-			w: tileGridSize,
-			h: tileGridSize,
+			w: tileGridWid,
+			h: tileGridHei,
 			tilesetUid: uid,
 		}
 	}
@@ -583,30 +597,31 @@ class TilesetDef {
 
 	/*** HEAPS API *********************************/
 
-	static var CACHED_ERROR_TILES: Map<Int,h3d.mat.Texture> = new Map();
-	public static function makeErrorTile(size) {
-		if( !CACHED_ERROR_TILES.exists(size) ) {
+	static var CACHED_ERROR_TILES: Map<ErrorPoint,h3d.mat.Texture> = new Map();
+	public static function makeErrorTile(width, height) {
+		var errorPoint = { x: width, y: height };
+		if( !CACHED_ERROR_TILES.exists(errorPoint) ) {
 			var g = new h2d.Graphics();
 			g.beginFill(0x880000);
-			g.drawRect(0,0,size,size);
+			g.drawRect(0,0,width,height);
 			g.endFill();
 
 			g.lineStyle(2,0xff0000);
 
-			g.moveTo(size*0.2,size*0.2);
-			g.lineTo(size*0.8,size*0.8);
+			g.moveTo(width*0.2,height*0.2);
+			g.lineTo(width*0.8,height*0.8);
 
-			g.moveTo(size*0.2,size*0.8);
-			g.lineTo(size*0.8,size*0.2);
+			g.moveTo(width*0.2,height*0.8);
+			g.lineTo(width*0.8,height*0.2);
 
 			g.endFill();
 
-			var tex = new h3d.mat.Texture(size,size, [Target]);
+			var tex = new h3d.mat.Texture(width,height, [Target]);
 			g.drawTo(tex);
-			CACHED_ERROR_TILES.set(size, tex);
+			CACHED_ERROR_TILES.set(errorPoint, tex);
 		}
 
-		return h2d.Tile.fromTexture( CACHED_ERROR_TILES.get(size) );
+		return h2d.Tile.fromTexture( CACHED_ERROR_TILES.get(errorPoint) );
 	}
 
 	public inline function getAtlasTile() : Null<h2d.Tile> {
@@ -619,11 +634,11 @@ class TilesetDef {
 
 	inline function getCachedTile(x:Int, y:Int) {
 		if( !isAtlasLoaded() )
-			return makeErrorTile(tileGridSize);
+			return makeErrorTile(tileGridWid, tileGridHei);
 		else {
-			var cachedTileId = Std.int(x/tileGridSize) + Std.int(y/tileGridSize) * 100000;
+			var cachedTileId = Std.int(x/tileGridWid) + Std.int(y/tileGridHei) * 100000;
 			if( !cachedTiles.exists(cachedTileId) ) {
-				var t = getAtlasTile().sub( x, y, tileGridSize, tileGridSize );
+				var t = getAtlasTile().sub( x, y, tileGridWid, tileGridHei );
 				cachedTiles.set(cachedTileId, t);
 			}
 			return cachedTiles.get(cachedTileId);
@@ -646,7 +661,7 @@ class TilesetDef {
 		if( isAtlasLoaded() )
 			return getAtlasTile().sub( r.x, r.y, r.w, r.h );
 		else
-			return makeErrorTile(tileGridSize);
+			return makeErrorTile(tileGridWid, tileGridHei);
 	}
 
 	public inline function isTileOpaque(tid:Int) {
@@ -661,7 +676,7 @@ class TilesetDef {
 		var tx = getTileSourceX(tid);
 		var ty = getTileSourceY(tid);
 
-		if( tx+tileGridSize<=pxWid && ty+tileGridSize<=pxHei ) {
+		if( tx+tileGridWid<=pxWid && ty+tileGridHei<=pxHei ) {
 			var a = 0.;
 			var r = 0.;
 			var g = 0.;
@@ -671,8 +686,8 @@ class TilesetDef {
 			var nRGB = 0.;
 			var nA = 0.;
 			var curA = 0.;
-			for(py in ty...ty+tileGridSize)
-			for(px in tx...tx+tileGridSize) {
+			for(py in ty...ty+tileGridHei)
+			for(px in tx...tx+tileGridWid) {
 				pixel = img.pixels.getPixel(px,py);
 
 				// Detect opacity
@@ -845,15 +860,15 @@ class TilesetDef {
 
 	inline function isTileInBounds(tid:Int) {
 		return isAtlasLoaded()
-			&& getTileSourceX(tid)>=0 && getTileSourceX(tid)+tileGridSize-1 < pxWid
-			&& getTileSourceY(tid)>=0 && getTileSourceY(tid)+tileGridSize-1 < pxHei;
+			&& getTileSourceX(tid)>=0 && getTileSourceX(tid)+tileGridWid-1 < pxWid
+			&& getTileSourceY(tid)>=0 && getTileSourceY(tid)+tileGridHei-1 < pxHei;
 	}
 
 
 	public function createCanvasFromTileId(tileId:Int, canvasSize:Int) : js.jquery.JQuery {
 		var jCanvas = new J('<canvas></canvas>');
-		jCanvas.attr("width",tileGridSize);
-		jCanvas.attr("height",tileGridSize);
+		jCanvas.attr("width",tileGridWid);
+		jCanvas.attr("height",tileGridHei);
 		jCanvas.css("width", canvasSize+"px");
 		jCanvas.css("height", canvasSize+"px");
 		drawTileToCanvas(jCanvas, tileId);
@@ -862,8 +877,8 @@ class TilesetDef {
 
 	public function createCanvasFromTileRect(tileRect:ldtk.Json.TilesetRect, canvasSize:Int) : js.jquery.JQuery {
 		var jCanvas = new J('<canvas></canvas>');
-		jCanvas.attr("width",tileGridSize);
-		jCanvas.attr("height",tileGridSize);
+		jCanvas.attr("width",tileGridWid);
+		jCanvas.attr("height",tileGridHei);
 		jCanvas.css("width", canvasSize+"px");
 		jCanvas.css("height", canvasSize+"px");
 		drawTileRectToCanvas(jCanvas, tileRect);
@@ -875,7 +890,7 @@ class TilesetDef {
 		var jImg =
 			if( isAtlasLoaded() && isTileInBounds(tid) ) {
 				var imgData = getOrLoadTilesetImage();
-				var subPixels = imgData.pixels.sub(getTileSourceX(tid), getTileSourceY(tid), tileGridSize, tileGridSize);
+				var subPixels = imgData.pixels.sub(getTileSourceX(tid), getTileSourceY(tid), tileGridWid, tileGridHei);
 				var b64 = haxe.crypto.Base64.encode( subPixels.toPNG() );
 				var img = new js.html.Image(subPixels.width, subPixels.height);
 				img.src = 'data:image/png;base64,$b64';
@@ -923,7 +938,7 @@ class TilesetDef {
 			return null;
 
 		var imgData = getOrLoadTilesetImage();
-		var subPixels = imgData.pixels.sub(getTileSourceX(tid), getTileSourceY(tid), tileGridSize, tileGridSize);
+		var subPixels = imgData.pixels.sub(getTileSourceX(tid), getTileSourceY(tid), tileGridWid, tileGridHei);
 		var b64 = haxe.crypto.Base64.encode( subPixels.toPNG() );
 		return 'data:image/png;base64,$b64';
 	}
@@ -945,7 +960,7 @@ class TilesetDef {
 			return; // out of bounds
 
 		var imgData = getOrLoadTilesetImage();
-		var subPixels = imgData.pixels.sub(getTileSourceX(tileId), getTileSourceY(tileId), tileGridSize, tileGridSize);
+		var subPixels = imgData.pixels.sub(getTileSourceX(tileId), getTileSourceY(tileId), tileGridWid, tileGridHei);
 		ctx.imageSmoothingEnabled = false;
 		var img = new js.html.Image(subPixels.width, subPixels.height);
 		var b64 = haxe.crypto.Base64.encode( subPixels.toPNG() );
@@ -1013,7 +1028,7 @@ class TilesetDef {
 	// 		return; // out of bounds
 
 	// 	var imgData = _project.getOrLoadImage(relPath);
-	// 	var subPixels = imgData.pixels.sub(getTileSourceX(tileId), getTileSourceY(tileId), tileGridSize, tileGridSize);
+	// 	var subPixels = imgData.pixels.sub(getTileSourceX(tileId), getTileSourceY(tileId), tileGridWid, tileGridHei);
 	// 	ctx.imageSmoothingEnabled = false;
 	// 	var img = new js.html.Image(subPixels.width, subPixels.height);
 	// 	var b64 = haxe.crypto.Base64.encode( subPixels.toPNG() );

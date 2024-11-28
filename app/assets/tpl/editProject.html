@@ -15,7 +15,7 @@
 	<dt class="full"> <h3>Extra files</h3> </dt>
 
 	<dt>
-		<label for="minify">Super simple export ❤</label>
+		<label for="simplifiedExport">Super simple export ❤</label>
 		<info tip="bottom">
 			Enable this to export your level data in a secondary super simple format, ideal for quick integration in ANY existing engine.
 			You will get:
@@ -116,15 +116,14 @@
 	</dd>
 
 	<dt>
-		<label for="minify">Minify JSON</label>
+		<label for="jsonStyle">JSON indent style</label>
 		<info>
-			Enable this to save project JSON file without any "pretty" formatting (ie. white spaces and indentation).
-			This is NOT necessarily recommended if your project is stored on a versioning system (git, svn etc.) because this could cause issues with diffs and merging operations.
-			Only use this option if you really need to reduce the project files size.
+			You can adjust the way the JSON file is formated by LDtk (ie. white spaces and indentation).
+			Only use Minified if you really need to reduce the project files size. This will cause issues with diffs and merging operations.
 		</info>
 	</dt>
 	<dd>
-		<input type="checkbox" name="minify" id="minify"/>
+		<select id="jsonStyle"></select>
 	</dd>
 
 	<dt>
@@ -163,12 +162,24 @@
 
 	<dt class="full"> <h3>Workspace settings</h3> </dt>
 
+	// Todo: Remove defaultGridSize
 	<dt>
 		<label for="defaultGridSize">Default layer grid</label>
 		<info>Set the default grid size when creating new layers in this project.</info>
 	</dt>
 	<dd>
 		<input type="text" name="defaultGridSize" id="defaultGridSize" class="small"/>
+		<span>px</span>
+	</dd>
+
+	<dt>
+		<label>Default grid size</label>
+		<info>Set the default width/height when creating new layers in this project.</info>
+	</dt>
+	<dd>
+		<input type="text" name="defaultGridWidth" class="small"/>
+		<span>x </span>
+		<input type="text" name="defaultGridHeight" class="small"/>
 		<span>px</span>
 	</dd>
 

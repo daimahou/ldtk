@@ -1,9 +1,9 @@
 {
 	"description": "This file is a JSON schema of files created by LDtk level editor (https://ldtk.io).",
-	"title": "LDtk 1.5.3 JSON schema",
+	"title": "LDtk 1.5.4 JSON schema",
 	"$schema": "https://json-schema.org/draft-07/schema#",
 	"$ref": "#/LdtkJsonRoot",
-	"version": "1.5.3",
+	"version": "1.5.4",
 	"LdtkJsonRoot": {
 		"description": "This is the root of any Project JSON file. It contains:  - the project settings, - an array of levels, - a group of definitions (that can probably be safely ignored for most users).",
 		"title": "LDtk Json root",
@@ -629,7 +629,7 @@
 					]
 				},
 				"tileRenderMode": {
-					"description": "An enum describing how the the Entity tile is rendered inside the Entity bounds. Possible values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`, `FullSizeUncropped`, `NineSlice`",
+					"description": "An enum describing how the Entity tile is rendered inside the Entity bounds. Possible values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`, `FullSizeUncropped`, `NineSlice`",
 					"enum": [
 						"Cover",
 						"FitInside",
@@ -932,7 +932,8 @@
 			"required": [
 				"__cHei",
 				"__cWid",
-				"__gridSize",
+				"__gridHei",
+				"__gridWid",
 				"__identifier",
 				"__opacity",
 				"__pxTotalOffsetX",
@@ -1003,12 +1004,6 @@
 						"string"
 					]
 				},
-				"__gridSize": {
-					"description": "Grid size",
-					"type": [
-						"integer"
-					]
-				},
 				"__pxTotalOffsetY": {
 					"description": "Total layer Y pixel offset, including both instance and definition offsets.",
 					"type": [
@@ -1048,6 +1043,12 @@
 						"array"
 					]
 				},
+				"__gridHei": {
+					"description": "",
+					"type": [
+						"integer"
+					]
+				},
 				"__opacity": {
 					"description": "Layer opacity as Float [0-1]",
 					"type": [
@@ -1074,6 +1075,12 @@
 				},
 				"pxOffsetY": {
 					"description": "Y offset in pixels to render this layer, usually 0 (IMPORTANT: this should be added to the `LayerDef` optional offset, so you should probably prefer using `__pxTotalOffsetX` which contains the total offset value)",
+					"type": [
+						"integer"
+					]
+				},
+				"__gridWid": {
+					"description": "Grid size",
 					"type": [
 						"integer"
 					]
@@ -1241,13 +1248,20 @@
 				"pxWid",
 				"spacing",
 				"tags",
-				"tileGridSize",
+				"tileGridHei",
+				"tileGridWid",
 				"uid"
 			],
 			"additionalProperties": false,
 			"properties": {
 				"__cHei": {
 					"description": "Grid-based height",
+					"type": [
+						"integer"
+					]
+				},
+				"tileGridWid": {
+					"description": "",
 					"type": [
 						"integer"
 					]
@@ -1272,6 +1286,12 @@
 					"type": [
 						"integer",
 						"null"
+					]
+				},
+				"tileGridHei": {
+					"description": "",
+					"type": [
+						"integer"
 					]
 				},
 				"uid": {
@@ -1343,12 +1363,6 @@
 					"type": [
 						"string",
 						"null"
-					]
-				},
-				"tileGridSize": {
-					"description": "",
-					"type": [
-						"integer"
 					]
 				}
 			},
@@ -1456,7 +1470,8 @@
 			"required": [
 				"__type",
 				"displayOpacity",
-				"gridSize",
+				"gridHei",
+				"gridWid",
 				"identifier",
 				"intGridValues",
 				"intGridValuesGroups",
@@ -1487,6 +1502,12 @@
 						"number"
 					]
 				},
+				"gridHei": {
+					"description": "Height of the grid in pixels",
+					"type": [
+						"integer"
+					]
+				},
 				"__type": {
 					"description": "Type of the layer (*IntGrid, Entities, Tiles or AutoLayer*)",
 					"type": [
@@ -1505,6 +1526,12 @@
 					"type": [
 						"integer",
 						"null"
+					]
+				},
+				"gridWid": {
+					"description": "Width of the grid in pixels",
+					"type": [
+						"integer"
 					]
 				},
 				"parallaxScaling": {
@@ -1545,12 +1572,6 @@
 				},
 				"pxOffsetY": {
 					"description": "Y offset of the layer, in pixels (IMPORTANT: this should be added to the `LayerInstance` optional offset)",
-					"type": [
-						"integer"
-					]
-				},
-				"gridSize": {
-					"description": "Width and height of the grid in pixels",
 					"type": [
 						"integer"
 					]

@@ -132,8 +132,8 @@ class EditLayerDefs extends ui.modal.Panel {
 							for( allTiles in sourceLi.autoTilesCache.get( r.uid ).keyValueIterator() )
 							for( tileInfos in allTiles.value ) {
 								newLi.addGridTile(
-									Std.int(tileInfos.x/ld.gridSize),
-									Std.int(tileInfos.y/ld.gridSize),
+									Std.int(tileInfos.x/ld.gridWid),
+									Std.int(tileInfos.y/ld.gridHei),
 									tileInfos.tid,
 									tileInfos.flips,
 									!td.isTileOpaque(tileInfos.tid),
@@ -292,19 +292,19 @@ class EditLayerDefs extends ui.modal.Panel {
 		}).css("display", cur.uiColor==null ? "none" : "block");
 
 		// Grid
-		var i = Input.linkToHtmlInput( cur.gridSize, jForms.find("input[name='gridSize']") );
+		var i = Input.linkToHtmlInput( cur.gridWid, jForms.find("input[name='gridWid']") );
 		i.setBounds(1,Const.MAX_GRID_SIZE);
-		i.onBeforeSetter = (newGrid)->{
+		i.onBeforeSetter = (newWid)->{
 			new LastChance(L.t._("Layer grid changed"), project);
 
 			for(w in project.worlds)
 			for(l in w.levels)
 			for(li in l.layerInstances) {
 				if( li.layerDefUid==cur.uid )
-					li.remapToGridSize(cur.gridSize, newGrid);
+					li.remapToGridSize(cur.gridWid, cur.gridHei, newWid, cur.gridHei);
 
 				if( li.def.autoSourceLayerDefUid==cur.uid )
-					li.remapToGridSize(cur.gridSize, newGrid);
+					li.remapToGridSize(cur.gridWid, cur.gridHei, newWid, cur.gridHei);
 			}
 		}
 		i.onChange = ()->{
@@ -314,10 +314,40 @@ class EditLayerDefs extends ui.modal.Panel {
 
 			for(ld in project.defs.layers)
 				if( ld.autoSourceLayerDefUid==cur.uid ) {
-					ld.gridSize = cur.gridSize;
+					ld.gridWid = cur.gridWid;
+					ld.gridHei = cur.gridHei;
 					editor.ge.emit( LayerDefChanged(ld.uid, false) );
 				}
 		}
+
+		var i = Input.linkToHtmlInput( cur.gridHei, jForms.find("input[name='gridHei']") );
+		i.setBounds(1,Const.MAX_GRID_SIZE);
+		i.onBeforeSetter = (newHei)->{
+			new LastChance(L.t._("Layer grid changed"), project);
+
+			for(w in project.worlds)
+			for(l in w.levels)
+			for(li in l.layerInstances) {
+				if( li.layerDefUid==cur.uid )
+					li.remapToGridSize(cur.gridWid, cur.gridHei, cur.gridWid, newHei);
+
+				if( li.def.autoSourceLayerDefUid==cur.uid )
+					li.remapToGridSize(cur.gridWid, cur.gridHei, cur.gridWid, newHei);
+			}
+		}
+		i.onChange = ()->{
+			project.recountIntGridValuesInAllLayerInstances();
+
+			editor.ge.emit( LayerDefChanged(cur.uid, false) );
+
+			for(ld in project.defs.layers)
+				if( ld.autoSourceLayerDefUid==cur.uid ) {
+					ld.gridWid = cur.gridWid;
+					ld.gridHei = cur.gridHei;
+					editor.ge.emit( LayerDefChanged(ld.uid, false) );
+				}
+		}
+
 
 		var i = Input.linkToHtmlInput( cur.guideGridWid, jForms.find("input[name='guideGridWid']") );
 		i.setBounds(0,Const.MAX_GRID_SIZE);
@@ -455,8 +485,10 @@ class EditLayerDefs extends ui.modal.Panel {
 						new LastChance(Lang.t._("Changed auto-layer tileset"), project);
 
 					cur.tilesetDefUid = uid;
-					if( cur.tilesetDefUid!=null && editor.curLayerInstance.isEmpty() )
-						cur.gridSize = project.defs.getTilesetDef(cur.tilesetDefUid).tileGridSize;
+					if( cur.tilesetDefUid!=null && editor.curLayerInstance.isEmpty() ) {
+						cur.gridWid = project.defs.getTilesetDef(cur.tilesetDefUid).tileGridWid;
+						cur.gridHei = project.defs.getTilesetDef(cur.tilesetDefUid).tileGridHei;
+					}
 
 					// TODO cleanup rules with invalid tileIDs
 
@@ -815,7 +847,8 @@ class EditLayerDefs extends ui.modal.Panel {
 						}
 
 						cur.autoSourceLayerDefUid = v;
-						cur.gridSize = project.defs.getLayerDef(v).gridSize;
+						cur.gridWid = project.defs.getLayerDef(v).gridWid;
+						cur.gridHei = project.defs.getLayerDef(v).gridHei;
 					}
 					editor.ge.emit(LayerDefChanged(cur.uid,true));
 				});
@@ -865,7 +898,8 @@ class EditLayerDefs extends ui.modal.Panel {
 							cur.tilesetDefUid = null;
 						else {
 							cur.tilesetDefUid = uid;
-							cur.gridSize = project.defs.getTilesetDef(cur.tilesetDefUid).tileGridSize;
+							cur.gridWid = project.defs.getTilesetDef(cur.tilesetDefUid).tileGridWid;
+							cur.gridHei = project.defs.getTilesetDef(cur.tilesetDefUid).tileGridHei;
 						}
 						editor.ge.emit(LayerDefChanged(cur.uid,true));
 					}
@@ -877,7 +911,7 @@ class EditLayerDefs extends ui.modal.Panel {
 					jInfos.hide();
 				else {
 					jInfos.show();
-					jInfos.text(project.defs.getTilesetDef(cur.tilesetDefUid).tileGridSize+"px tiles");
+					jInfos.text(project.defs.getTilesetDef(cur.tilesetDefUid).tileGridWid+"x"+project.defs.getTilesetDef(cur.tilesetDefUid).tileGridHei + "px tiles");
 				}
 
 				// Create tileset shortcut
@@ -890,12 +924,20 @@ class EditLayerDefs extends ui.modal.Panel {
 
 				// Different grid size warning
 				var td = project.defs.getTilesetDef(cur.tilesetDefUid);
-				if( td!=null && cur.gridSize!=td.tileGridSize && ( td.tileGridSize<cur.gridSize || td.tileGridSize%cur.gridSize!=0 ) ) {
+				if( td!=null && cur.gridWid!=td.tileGridWid && ( td.tileGridWid<cur.gridWid || td.tileGridWid%cur.gridWid!=0 ) ) {
 					var jWarn = new J('<div class="tmp warning"/>');
 					jWarn.appendTo( jSelect.parent() );
 					jWarn.text(Lang.t._("Warning: the TILESET grid (::tileset::px) differs from the LAYER grid (::layer::px), and the values aren't multiples, which can lead to unexpected behaviors when adding a group of tiles.", {
-						tileset: td.tileGridSize,
-						layer: cur.gridSize,
+						tileset: td.tileGridWid,
+						layer: cur.gridWid,
+					}));
+				}
+				if( td!=null && cur.gridHei!=td.tileGridHei && ( td.tileGridHei<cur.gridHei || td.tileGridHei%cur.gridHei!=0 ) ) {
+					var jWarn = new J('<div class="tmp warning"/>');
+					jWarn.appendTo( jSelect.parent() );
+					jWarn.text(Lang.t._("Warning: the TILESET grid (::tileset::px) differs from the LAYER grid (::layer::px), and the values aren't multiples, which can lead to unexpected behaviors when adding a group of tiles.", {
+						tileset: td.tileGridHei,
+						layer: cur.gridHei,
 					}));
 				}
 

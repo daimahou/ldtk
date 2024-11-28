@@ -137,19 +137,19 @@ class EntityInstance {
 	}
 
 	public inline function getCx(ld:data.def.LayerDef) {
-		return Std.int( ( x + (def.pivotX==1 ? -1 : 0) ) / ld.gridSize );
+		return Std.int( ( x + (def.pivotX==1 ? -1 : 0) ) / ld.gridWid );
 	}
 
 	public inline function getCy(ld:data.def.LayerDef) {
-		return Std.int( ( y + (def.pivotY==1 ? -1 : 0) ) / ld.gridSize );
+		return Std.int( ( y + (def.pivotY==1 ? -1 : 0) ) / ld.gridHei );
 	}
 
 	public inline function getPointOriginX(ld:data.def.LayerDef) {
-		return def.resizableX ? centerX : ( getCx(ld)+0.5 ) * ld.gridSize;
+		return def.resizableX ? centerX : ( getCx(ld)+0.5 ) * ld.gridWid;
 	}
 
 	public inline function getPointOriginY(ld:data.def.LayerDef) {
-		return def.resizableY ? centerY : ( getCy(ld)+0.5 ) * ld.gridSize;
+		return def.resizableY ? centerY : ( getCy(ld)+0.5 ) * ld.gridHei;
 	}
 
 	public inline function getRefAttachX(fd:data.def.FieldDef) {
@@ -235,8 +235,8 @@ class EntityInstance {
 	}
 
 	public function isOutOfLayerBounds() {
-		return x<_li.pxTotalOffsetX || x>_li.pxTotalOffsetX+_li.cWid*_li.def.scaledGridSize
-			|| y<_li.pxTotalOffsetY || y>_li.pxTotalOffsetY+_li.cHei*_li.def.scaledGridSize;
+		return x<_li.pxTotalOffsetX || x>_li.pxTotalOffsetX+_li.cWid*_li.def.scaledGridWid
+			|| y<_li.pxTotalOffsetY || y>_li.pxTotalOffsetY+_li.cHei*_li.def.scaledGridHei;
 	}
 
 	public function tidy(p:data.Project, li:LayerInstance) {

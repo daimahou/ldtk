@@ -112,7 +112,7 @@ class Level {
 		neighbours = neighbours.concat( switch _world.worldLayout {
 			case Free, GridVania:
 				var nears = _world.levels.filter( (ol)->
-					ol!=this && getBoundsDist(ol)==0
+					ol!=this && getBoundsDistX(ol)==0 && getBoundsDistY(ol)==0
 					&& ol.worldDepth==worldDepth
 					// && !( ( ol.worldX>=worldX+pxWid || ol.worldX+ol.pxWid<=worldX )
 						// && ( ol.worldY>=worldY+pxHei || ol.worldY+ol.pxHei<=worldY ) )
@@ -520,11 +520,12 @@ class Level {
 		}
 	}
 
-	public function getBoundsDist(l:Level) : Int {
-		return dn.M.imax(
-			dn.M.imax(0, worldX - (l.worldX+l.pxWid)) + dn.M.imax( 0, l.worldX - (worldX+pxWid) ),
-			dn.M.imax(0, worldY - (l.worldY+l.pxHei)) + dn.M.imax( 0, l.worldY - (worldY+pxHei) )
-		);
+	public function getBoundsDistX(l:Level) : Int {
+		return dn.M.imax(0, worldX - (l.worldX+l.pxWid)) + dn.M.imax( 0, l.worldX - (worldX+pxWid) );
+	}
+
+	public function getBoundsDistY(l:Level) : Int {
+		return dn.M.imax(0, worldY - (l.worldY+l.pxHei)) + dn.M.imax( 0, l.worldY - (worldY+pxHei) );
 	}
 
 	public inline function touches(l:Level) {

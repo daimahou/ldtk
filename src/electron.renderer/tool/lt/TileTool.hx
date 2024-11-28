@@ -194,18 +194,19 @@ class TileTool extends tool.LayerTool<data.DataTypes.TilesetSelection> {
 		var selHei = selBottom-selTop+1;
 		var curX = cx;
 		var curY = cy;
-		var gridDiffScale = M.imax(1, M.round( curTilesetDef.tileGridSize / curLayerInstance.def.gridSize ) );
+		var gridDiffScaleX = M.imax(1, M.round( curTilesetDef.tileGridWid / curLayerInstance.def.gridWid ) );
+		var gridDiffScaleY = M.imax(1, M.round( curTilesetDef.tileGridHei / curLayerInstance.def.gridHei ) );
 		for( dx in 0...wid )
 		for( dy in 0...hei ) {
-			if( dx%gridDiffScale!=0 || dy%gridDiffScale!=0 )
+			if( dx%gridDiffScaleX!=0 || dy%gridDiffScaleY!=0 )
 				continue;
 
 			var x = cx+dx;
 			var y = cy+dy;
 
 			var tid = curTilesetDef.getTileId(
-				selLeft + Std.int(dx/gridDiffScale)%selWid,
-				selTop + Std.int(dy/gridDiffScale)%selHei
+				selLeft + Std.int(dx/gridDiffScaleX)%selWid,
+				selTop + Std.int(dy/gridDiffScaleY)%selHei
 			);
 
 			if( onlyCoordsMask==null || onlyCoordsMask.exists(curLayerInstance.coordId(x,y)) )
@@ -249,12 +250,13 @@ class TileTool extends tool.LayerTool<data.DataTypes.TilesetSelection> {
 				bottom = M.imax(bottom, curTilesetDef.getTileCy(tid));
 			}
 
-			var gridDiffScale = M.imax(1, M.round( curTilesetDef.tileGridSize / li.def.gridSize ) );
+			var gridDiffScaleX = M.imax(1, M.round( curTilesetDef.tileGridWid / li.def.gridWid ) );
+			var gridDiffScaleY = M.imax(1, M.round( curTilesetDef.tileGridHei / li.def.gridHei ) );
 			for(tid in sel.ids) {
 				var tdCx = curTilesetDef.getTileCx(tid);
 				var tdCy = curTilesetDef.getTileCy(tid);
-				var tcx = cx + ( flipX ? right-tdCx : tdCx-left ) * gridDiffScale;
-				var tcy = cy + ( flipY ? bottom-tdCy : tdCy-top ) * gridDiffScale;
+				var tcx = cx + ( flipX ? right-tdCx : tdCx-left ) * gridDiffScaleX;
+				var tcy = cy + ( flipY ? bottom-tdCy : tdCy-top ) * gridDiffScaleY;
 				if( li.isValid(tcx,tcy) && !hasAlreadyPaintedAt(tcx,tcy	) ) {
 					li.addGridTile(tcx,tcy, tid, flips, settings.v.tileStacking && !curTilesetDef.isTileOpaque(tid));
 					if( settings.v.tileStacking )
@@ -297,10 +299,11 @@ class TileTool extends tool.LayerTool<data.DataTypes.TilesetSelection> {
 				top = M.imin(top, curTilesetDef.getTileCy(tid));
 			}
 
-			var gridDiffScale = M.imax(1, M.round( curTilesetDef.tileGridSize / curLayerInstance.def.gridSize ) );
+			var gridDiffScaleX = M.imax(1, M.round( curTilesetDef.tileGridWid / curLayerInstance.def.gridWid ) );
+			var gridDiffScaleY = M.imax(1, M.round( curTilesetDef.tileGridHei / curLayerInstance.def.gridHei ) );
 			for(tid in sel.ids) {
-				var tcx = cx + ( curTilesetDef.getTileCx(tid) - left ) * gridDiffScale;
-				var tcy = cy + ( curTilesetDef.getTileCy(tid) - top ) * gridDiffScale;
+				var tcx = cx + ( curTilesetDef.getTileCx(tid) - left ) * gridDiffScaleX;
+				var tcy = cy + ( curTilesetDef.getTileCy(tid) - top ) * gridDiffScaleY;
 				if( !hasAlreadyPaintedAt(tcx,tcy) ) {
 					if( editor.curLayerInstance.removeAllGridTiles(tcx,tcy,true) ) {
 						editor.curLevelTimeline.markGridChange(curLayerInstance, tcx, tcy);

@@ -244,8 +244,8 @@ class GameMakerStudio2 extends Exporter {
 
 					properties: [],
 					layers: [],
-					gridX: li.def.gridSize,
-					gridY: li.def.gridSize,
+					gridX: li.def.gridWid,
+					gridY: li.def.gridHei,
 
 					effectType: null,
 					effectEnabled: true,

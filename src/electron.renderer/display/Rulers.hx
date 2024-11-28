@@ -230,8 +230,9 @@ class Rulers extends dn.Process {
 		}
 	}
 
+	// TODO: might be wrong for vertical rulers
 	inline function getResizeGrid() {
-		return curLayerInstance==null ? Editor.ME.project.defaultGridSize : curLayerInstance.def.gridSize;
+		return curLayerInstance==null ? Editor.ME.project.defaultGridWidth : curLayerInstance.def.gridWid;
 	}
 
 	function resizeBoundsValid(b) {

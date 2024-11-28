@@ -179,12 +179,14 @@ class Definitions {
 
 		l.identifier = _project.fixUniqueIdStr(id==null ? type.getName() : id, (id)->isLayerNameUnique(id));
 
-		l.gridSize = _project.defaultGridSize;
+		l.gridWid = _project.defaultGridWidth;
+		l.gridHei = _project.defaultGridHeight;
 
 		// Init tileset
 		if( type==Tiles && tilesets.length==1 ) {
 			var td = tilesets[0];
-			l.gridSize = td.tileGridSize;
+			l.gridWid = td.tileGridWid;
+			l.gridHei = td.tileGridHei;
 			l.tilesetDefUid = td.uid;
 		}
 
@@ -576,7 +578,7 @@ class Definitions {
 
 		td.embedAtlas = embedId;
 		switch td.embedAtlas {
-			case LdtkIcons: td.tileGridSize = 16;
+			case LdtkIcons: td.tileGridWid = td.tileGridHei = 16;
 		}
 		td.importAtlasImage(td.embedAtlas);
 		td.buildPixelData(true);

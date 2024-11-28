@@ -75,7 +75,7 @@ class RulePerlinSettings extends ui.modal.Dialog {
 				preview.beginFill(0xff0000, 0.5);
 			else
 				preview.beginFill(0xb3f700, 0.3);
-			preview.drawRect(cx*li.def.gridSize, cy*li.def.gridSize, li.def.gridSize, li.def.gridSize);
+			preview.drawRect(cx*li.def.gridWid, cy*li.def.gridHei, li.def.gridWid, li.def.gridHei);
 		}
 	}
 }

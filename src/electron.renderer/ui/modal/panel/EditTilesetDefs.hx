@@ -188,9 +188,33 @@ class EditTilesetDefs extends ui.modal.Panel {
 		i.fixValue = (v)->project.fixUniqueIdStr(v, (id)->project.defs.isTilesetIdentifierUnique(id,curTd));
 		i.onChange = editor.ge.emit.bind( TilesetDefChanged(curTd) );
 
-		var i = Input.linkToHtmlInput( curTd.tileGridSize, jForm.find("input[name=tilesetGridSize]") );
+		var i = Input.linkToHtmlInput( curTd.tileGridWid, jForm.find("input[name=tilesetGridWid]") );
 		i.setBounds(2, curTd.getMaxTileGridSize());
-		var oldGrid = curTd.tileGridSize;
+		var oldGrid = curTd.tileGridWid;
+		i.onChange = ()->{
+			new LastChance(L.t._("Tileset grid changed"), project);
+
+			var result = curTd.remapAllTileIdsAfterGridChange(oldGrid);
+			editor.ge.emit(TilesetDefChanged(curTd));
+
+			switch result {
+				case Ok:
+					N.msg("No change");
+
+				case RemapLoss:
+					new ui.modal.dialog.Warning(L.t._("The new grid size is larger than the previous one.\nSome tiles may have been lost in the remapping process."));
+
+				case RemapSuccessful:
+					new ui.modal.dialog.Message(L.t._("All tiles were successfully remapped."));
+
+				case _:
+					N.error("Unknown remapping result: "+result);
+			}
+		}
+
+		var i = Input.linkToHtmlInput( curTd.tileGridHei, jForm.find("input[name=tilesetGridHei]") );
+		i.setBounds(2, curTd.getMaxTileGridSize());
+		var oldGrid = curTd.tileGridWid;
 		i.onChange = ()->{
 			new LastChance(L.t._("Tileset grid changed"), project);
 

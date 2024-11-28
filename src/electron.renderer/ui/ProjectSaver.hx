@@ -398,31 +398,33 @@ class ProjectSaver extends dn.Process {
 
 
 			case ExportingTiled:
-				if( project.exportTiled ) {
-					logState();
-					ui.modal.Progress.single(
-						L.t._("Exporting Tiled..."),
-						()->{
-							var e = new exporter.Tiled();
-							e.addExtraLogger( App.LOG, "TiledExport" );
-							e.run( project, project.filePath.full );
-							if( e.hasErrors() )
-								N.error('Tiled export has errors.');
-							else
-								N.success('Saved Tiled files.');
-						},
-						()->{
-							beginNextState();
-						}
-					);
-				}
-				else {
-					// Remove previous tiled dir
-					var dir = project.getAbsExternalFilesDir() + "/tiled";
-					if( NT.fileExists(dir) )
-						NT.removeDir(dir);
-					beginNextState();
-				}
+				log('Unsupported Tiled export');
+
+			// 	if( project.exportTiled ) {
+			// 		logState();
+			// 		ui.modal.Progress.single(
+			// 			L.t._("Exporting Tiled..."),
+			// 			()->{
+			// 				var e = new exporter.Tiled();
+			// 				e.addExtraLogger( App.LOG, "TiledExport" );
+			// 				e.run( project, project.filePath.full );
+			// 				if( e.hasErrors() )
+			// 					N.error('Tiled export has errors.');
+			// 				else
+			// 					N.success('Saved Tiled files.');
+			// 			},
+			// 			()->{
+			// 				beginNextState();
+			// 			}
+			// 		);
+			// 	}
+			// 	else {
+			// 		// Remove previous tiled dir
+			// 		var dir = project.getAbsExternalFilesDir() + "/tiled";
+			// 		if( NT.fileExists(dir) )
+			// 			NT.removeDir(dir);
+			// 		beginNextState();
+			// 	}
 
 			case ExportingGMS:
 				if( false ) { // TODO check actual project export setting

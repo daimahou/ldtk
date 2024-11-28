@@ -67,13 +67,13 @@ class EntityTool extends tool.LayerTool<Int> {
 
 	function getPlacementX(m:Coords) {
 		return snapToGrid()
-			? M.round( ( m.cx + curEntityDef.pivotX ) * curLayerInstance.def.gridSize )
+			? M.round( ( m.cx + curEntityDef.pivotX ) * curLayerInstance.def.gridWid )
 			: m.levelX;
 	}
 
 	function getPlacementY(m:Coords) {
 		return snapToGrid()
-			? M.round( ( m.cy + curEntityDef.pivotY ) * curLayerInstance.def.gridSize)
+			? M.round( ( m.cy + curEntityDef.pivotY ) * curLayerInstance.def.gridHei)
 			: m.levelY;
 	}
 
@@ -252,8 +252,8 @@ class EntityTool extends tool.LayerTool<Int> {
 					editor.ge.emit( EntityFieldInstanceChanged(ei,fi) );
 					editor.selectionTool.select([ GenericLevelElement.Entity(li,ei) ]);
 					editor.levelRender.bleepPoint(
-						(pt.cx+0.5) * li.def.gridSize,
-						(pt.cy+0.5) * li.def.gridSize,
+						(pt.cx+0.5) * li.def.gridWid,
+						(pt.cy+0.5) * li.def.gridHei,
 						ei.getSmartColor(true)
 					);
 					return true;
