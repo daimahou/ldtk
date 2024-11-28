@@ -248,7 +248,8 @@ class EditLayerDefs extends ui.modal.Panel {
 
 		editor.selectLayerInstance( editor.curLevel.getLayerInstance(cur) );
 		jFormsWrapper.show();
-		jForms.find("#gridSize").prop("readonly",false);
+		jForms.find("#gridWid").prop("readonly",false);
+		jForms.find("#gridHei").prop("readonly",false);
 
 		// Set form class
 		for(k in Type.getEnumConstructs(ldtk.Json.LayerType))
@@ -853,7 +854,8 @@ class EditLayerDefs extends ui.modal.Panel {
 					editor.ge.emit(LayerDefChanged(cur.uid,true));
 				});
 
-				jForms.find("#gridSize").prop("readonly",true);
+				jForms.find("#gridWid").prop("readonly",true);
+				jForms.find("#gridHei").prop("readonly",true);
 
 				// Tileset
 				initAutoLayerSelects();

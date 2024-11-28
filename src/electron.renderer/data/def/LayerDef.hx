@@ -77,7 +77,6 @@ class LayerDef {
 
 	@:keep public function toString() {
 		return 'LayerDef.$identifier($type,${gridWid}px,${gridHei}px)';
-		// return 'LayerDef.$identifier($type,${gridSize}px)';
 	}
 
 	public static function fromJson(p:Project, jsonVersion:String, json:ldtk.Json.LayerDefJson) {
@@ -101,7 +100,6 @@ class LayerDef {
 		var o = new LayerDef( p, JsonTools.readInt(json.uid), JsonTools.readEnum(ldtk.Json.LayerType, json.type, false));
 		o.identifier = JsonTools.readString(json.identifier, "Layer"+o.uid);
 		o.doc = JsonTools.unescapeString(json.doc);
-		// o.gridSize = JsonTools.readInt(json.gridSize, Project.DEFAULT_GRID_SIZE);
 		o.gridWid = JsonTools.readInt(json.gridWid, Project.DEFAULT_GRID_SIZE);
 		o.gridHei = JsonTools.readInt(json.gridHei, Project.DEFAULT_GRID_SIZE);
 		o.guideGridWid = JsonTools.readInt(json.guideGridWid, 0);
@@ -184,7 +182,6 @@ class LayerDef {
 			doc: JsonTools.escapeNullableString(doc),
 			uiColor: uiColor==null ? null : uiColor.toHex(),
 
-			// gridSize: gridSize,
 			gridWid: gridWid,
 			gridHei: gridHei,
 			guideGridWid: guideGridWid,
