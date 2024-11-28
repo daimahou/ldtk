@@ -399,6 +399,7 @@ class ProjectSaver extends dn.Process {
 
 			case ExportingTiled:
 				log('Unsupported Tiled export');
+				beginNextState();
 
 			// 	if( project.exportTiled ) {
 			// 		logState();
